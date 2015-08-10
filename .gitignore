@@ -9,7 +9,6 @@ obj/
 debug/
 bin/
 PublishProfiles/
-Alamo.Portal.Web/Web.config
 *.exe
 www/
 node_modules/

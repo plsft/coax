@@ -9,6 +9,7 @@ namespace Coax.WebApi
         {
             var appXmlType = config.Formatters.XmlFormatter.SupportedMediaTypes.FirstOrDefault(t => t.MediaType == "application/xml");
             config.Formatters.XmlFormatter.SupportedMediaTypes.Remove(appXmlType);
+            config.Filters.Add( new CrossSiteScriptingAttribute());
 
             config.MapHttpAttributeRoutes();
             config.Routes.MapHttpRoute(

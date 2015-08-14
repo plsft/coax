@@ -14,8 +14,8 @@ namespace Coax.WebApi
         {
             AreaRegistration.RegisterAllAreas();
             GlobalConfiguration.Configure(WebApiConfig.Register);
-            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
+            FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
         }
 
         protected void Application_Error()

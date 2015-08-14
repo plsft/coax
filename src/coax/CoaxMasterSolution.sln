@@ -13,6 +13,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coax.TestSuite", "Coax.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Helix", "..\Helix\Helix.csproj", "{6A77E0CF-2818-4A7D-8D24-292586D3C73E}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Coax.WebApi", "Coax.WebApi\Coax.WebApi.csproj", "{0C9DEADC-5EF0-4741-9252-A6FB2E77FA06}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{6A77E0CF-2818-4A7D-8D24-292586D3C73E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6A77E0CF-2818-4A7D-8D24-292586D3C73E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6A77E0CF-2818-4A7D-8D24-292586D3C73E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0C9DEADC-5EF0-4741-9252-A6FB2E77FA06}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0C9DEADC-5EF0-4741-9252-A6FB2E77FA06}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0C9DEADC-5EF0-4741-9252-A6FB2E77FA06}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0C9DEADC-5EF0-4741-9252-A6FB2E77FA06}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

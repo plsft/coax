@@ -1,0 +1,9 @@
+C:\plurral\Eppendorf\Redemption\Red.General\bin\Debug\Red.General.dll
+C:\plurral\Eppendorf\Redemption\Red.General\bin\Debug\Red.General.pdb
+C:\plurral\Eppendorf\Redemption\Red.General\bin\Debug\Elixir.dll
+C:\plurral\Eppendorf\Redemption\Red.General\bin\Debug\RazorTemplates.Core.dll
+C:\plurral\Eppendorf\Redemption\Red.General\bin\Debug\Elixir.pdb
+C:\plurral\Eppendorf\Redemption\Red.General\bin\Debug\Elixir.xml
+C:\plurral\Eppendorf\Redemption\Red.General\bin\Debug\RazorTemplates.Core.xml
+C:\plurral\Eppendorf\Redemption\Red.General\obj\Debug\Red.General.dll
+C:\plurral\Eppendorf\Redemption\Red.General\obj\Debug\Red.General.pdb

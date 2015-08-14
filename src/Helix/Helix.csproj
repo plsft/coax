@@ -1,0 +1,89 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6A77E0CF-2818-4A7D-8D24-292586D3C73E}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Helix</RootNamespace>
+    <AssemblyName>Helix</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>
+    </DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Data\HelixPetaGenericRepository.cs" />
+    <Compile Include="Data\IHelixPetaRepository.cs" />
+    <Compile Include="Data\SqlHelper.cs" />
+    <Compile Include="Infra\Peta.cs" />
+    <Compile Include="Infra\PetaExtensions.cs" />
+    <Compile Include="Utility\DbConnect.cs" />
+    <Compile Include="Utility\Logger.cs" />
+    <Compile Include="Utility\Settings.cs" />
+    <Compile Include="Utility\SqlCmdBuilder.cs" />
+    <Compile Include="Json\DynamicJson.cs" />
+    <Compile Include="Security\CoreEncryptionBase.cs" />
+    <Compile Include="Security\Crypto.cs" />
+    <Compile Include="Utility\ComparableString.cs" />
+    <Compile Include="Utility\Comparer.cs" />
+    <Compile Include="Utility\DatabaseOps.cs" />
+    <Compile Include="Utility\FileOps.cs" />
+    <Compile Include="Utility\General.cs" />
+    <Compile Include="Utility\StringExtensions.cs" />
+    <Compile Include="Utility\Strings.cs" />
+    <Compile Include="Utility\TypeMapper.cs" />
+    <Compile Include="Utility\UserContext.cs" />
+    <Compile Include="Xml\DynamicXPath.cs" />
+    <Compile Include="Xml\XmlToJson.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Helix.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Properties\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

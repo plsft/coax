@@ -1,0 +1,12 @@
+C:\plurral\jinx\src\helix\bin\Debug\Helix.config
+C:\plurral\jinx\src\helix\bin\Debug\Helix.dll
+C:\plurral\jinx\src\helix\bin\Debug\Helix.pdb
+C:\plurral\jinx\src\helix\obj\Release\Helix.dll
+C:\plurral\jinx\src\helix\obj\Release\Helix.pdb
+C:\plurral\jinx\src\helix\obj\Release\Helix.csprojResolveAssemblyReference.cache
+C:\Dropbox\_yurn\src\helix\bin\Debug\Helix.config
+C:\Dropbox\_yurn\src\helix\bin\Debug\Helix.dll
+C:\Dropbox\_yurn\src\helix\bin\Debug\Helix.pdb
+C:\Dropbox\_yurn\src\helix\obj\Release\Helix.csprojResolveAssemblyReference.cache
+C:\Dropbox\_yurn\src\helix\obj\Release\Helix.dll
+C:\Dropbox\_yurn\src\helix\obj\Release\Helix.pdb

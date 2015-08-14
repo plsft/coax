@@ -1,0 +1,10 @@
+C:\plurral\jinx\src\helix\bin\Debug\Helix.config
+C:\plurral\jinx\src\helix\bin\Debug\Helix.dll
+C:\plurral\jinx\src\helix\bin\Debug\Helix.pdb
+C:\plurral\jinx\src\helix\obj\Debug\Helix.dll
+C:\plurral\jinx\src\helix\obj\Debug\Helix.pdb
+C:\plsft\coax\src\Helix\bin\Debug\Helix.config
+C:\plsft\coax\src\Helix\bin\Debug\Helix.dll
+C:\plsft\coax\src\Helix\bin\Debug\Helix.pdb
+C:\plsft\coax\src\Helix\obj\Debug\Helix.dll
+C:\plsft\coax\src\Helix\obj\Debug\Helix.pdb

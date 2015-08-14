@@ -1,0 +1,16 @@
+C:\plurral\_Elixir_App_Blueprint\Blue.Library\bin\Debug\Red.Library.dll
+C:\plurral\_Elixir_App_Blueprint\Blue.Library\bin\Debug\Red.Library.pdb
+C:\plurral\_Elixir_App_Blueprint\Blue.Library\bin\Debug\Elixir.dll
+C:\plurral\_Elixir_App_Blueprint\Blue.Library\bin\Debug\Newtonsoft.Json.dll
+C:\plurral\_Elixir_App_Blueprint\Blue.Library\bin\Debug\Red.Data.dll
+C:\plurral\_Elixir_App_Blueprint\Blue.Library\bin\Debug\Red.General.dll
+C:\plurral\_Elixir_App_Blueprint\Blue.Library\bin\Debug\RazorTemplates.Core.dll
+C:\plurral\_Elixir_App_Blueprint\Blue.Library\bin\Debug\Red.Data.pdb
+C:\plurral\_Elixir_App_Blueprint\Blue.Library\bin\Debug\Red.General.pdb
+C:\plurral\_Elixir_App_Blueprint\Blue.Library\bin\Debug\Elixir.pdb
+C:\plurral\_Elixir_App_Blueprint\Blue.Library\bin\Debug\Elixir.xml
+C:\plurral\_Elixir_App_Blueprint\Blue.Library\bin\Debug\Newtonsoft.Json.xml
+C:\plurral\_Elixir_App_Blueprint\Blue.Library\bin\Debug\RazorTemplates.Core.xml
+C:\plurral\_Elixir_App_Blueprint\Blue.Library\obj\Debug\Blue.Library.csprojResolveAssemblyReference.cache
+C:\plurral\_Elixir_App_Blueprint\Blue.Library\obj\Debug\Red.Library.dll
+C:\plurral\_Elixir_App_Blueprint\Blue.Library\obj\Debug\Red.Library.pdb

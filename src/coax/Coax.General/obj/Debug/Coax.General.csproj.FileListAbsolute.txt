@@ -1,0 +1,12 @@
+C:\plsft\coax\src\coax\Coax.General\bin\Debug\Helix.config
+C:\plsft\coax\src\coax\Coax.General\bin\Debug\Coax.General.dll
+C:\plsft\coax\src\coax\Coax.General\bin\Debug\Coax.General.pdb
+C:\plsft\coax\src\coax\Coax.General\bin\Debug\Helix.dll
+C:\plsft\coax\src\coax\Coax.General\bin\Debug\RazorTemplates.Core.dll
+C:\plsft\coax\src\coax\Coax.General\bin\Debug\System.Web.Razor.dll
+C:\plsft\coax\src\coax\Coax.General\bin\Debug\Helix.pdb
+C:\plsft\coax\src\coax\Coax.General\bin\Debug\RazorTemplates.Core.xml
+C:\plsft\coax\src\coax\Coax.General\bin\Debug\System.Web.Razor.xml
+C:\plsft\coax\src\coax\Coax.General\obj\Debug\Coax.General.csprojResolveAssemblyReference.cache
+C:\plsft\coax\src\coax\Coax.General\obj\Debug\Coax.General.dll
+C:\plsft\coax\src\coax\Coax.General\obj\Debug\Coax.General.pdb

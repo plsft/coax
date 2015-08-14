@@ -1,0 +1,16 @@
+C:\plurral\Eppendorf\Redemption\Red.Library\bin\Debug\Red.Library.dll
+C:\plurral\Eppendorf\Redemption\Red.Library\bin\Debug\Red.Library.pdb
+C:\plurral\Eppendorf\Redemption\Red.Library\bin\Debug\Elixir.dll
+C:\plurral\Eppendorf\Redemption\Red.Library\bin\Debug\Newtonsoft.Json.dll
+C:\plurral\Eppendorf\Redemption\Red.Library\bin\Debug\Red.Data.dll
+C:\plurral\Eppendorf\Redemption\Red.Library\bin\Debug\Red.General.dll
+C:\plurral\Eppendorf\Redemption\Red.Library\bin\Debug\RazorTemplates.Core.dll
+C:\plurral\Eppendorf\Redemption\Red.Library\bin\Debug\Red.Data.pdb
+C:\plurral\Eppendorf\Redemption\Red.Library\bin\Debug\Red.General.pdb
+C:\plurral\Eppendorf\Redemption\Red.Library\bin\Debug\Elixir.pdb
+C:\plurral\Eppendorf\Redemption\Red.Library\bin\Debug\Elixir.xml
+C:\plurral\Eppendorf\Redemption\Red.Library\bin\Debug\Newtonsoft.Json.xml
+C:\plurral\Eppendorf\Redemption\Red.Library\bin\Debug\RazorTemplates.Core.xml
+C:\plurral\Eppendorf\Redemption\Red.Library\obj\Debug\Red.Library.csprojResolveAssemblyReference.cache
+C:\plurral\Eppendorf\Redemption\Red.Library\obj\Debug\Red.Library.dll
+C:\plurral\Eppendorf\Redemption\Red.Library\obj\Debug\Red.Library.pdb

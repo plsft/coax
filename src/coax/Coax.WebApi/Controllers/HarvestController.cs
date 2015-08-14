@@ -9,9 +9,12 @@ namespace Coax.WebApi.Controllers
 {
     public class HarvestController : ApiControllerBase
     {
-        public HarvestController()
-        {
-        }
+        /*
+            POST http://localhost:55706/harvest/savemessage HTTP/1.1
+            Host: localhost:55706
+            Content-Length: 6
+            Content-Type: application/x-www-form-urlencoded
+        */
 
         [GET("test")]
         [HttpGet]
@@ -20,7 +23,7 @@ namespace Coax.WebApi.Controllers
             return Request.CreateResponse(HttpStatusCode.OK, new { test = true }, new JsonMediaTypeFormatter());
         }
 
-        [POST("message/save")]
+        [POST("savemessage")]
         [HttpPost]
         public HttpResponseMessage SaveMessage(FormDataCollection form)
         {

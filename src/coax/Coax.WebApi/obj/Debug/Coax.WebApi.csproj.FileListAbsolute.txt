@@ -36,7 +36,6 @@ C:\plsft\coax\src\coax\Coax.WebApi\bin\System.Web.WebPages.dll
 C:\plsft\coax\src\coax\Coax.WebApi\bin\System.Web.WebPages.Razor.dll
 C:\plsft\coax\src\coax\Coax.WebApi\bin\WebGrease.dll
 C:\plsft\coax\src\coax\Coax.WebApi\bin\RazorTemplates.Core.dll
-C:\plsft\coax\src\coax\Coax.WebApi\bin\Antlr3.Runtime.dll
 C:\plsft\coax\src\coax\Coax.WebApi\bin\Helix.pdb
 C:\plsft\coax\src\coax\Coax.WebApi\bin\Coax.Data.pdb
 C:\plsft\coax\src\coax\Coax.WebApi\bin\Coax.General.pdb

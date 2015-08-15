@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using System.Threading;
 using System.Web.Http;
 
 namespace Coax.WebApi.Controllers
@@ -13,19 +14,22 @@ namespace Coax.WebApi.Controllers
             Content-Length: 6
             Content-Type: application/x-www-form-urlencoded
         */
-
+          
         [Route("harvest/test")]
         [HttpGet]
         public HttpResponseMessage Test()
         {
-            return Request.CreateResponse(HttpStatusCode.OK, new { test = true }, new JsonMediaTypeFormatter());
+            base.Stopwatch.Stop();
+            return Request.CreateResponse(HttpStatusCode.OK, new { test = true, timeElapsted = base.Stopwatch.Elapsed.Milliseconds }, new JsonMediaTypeFormatter());
         }
 
         [Route("harvest/message/save")]
         [HttpPost]
         public HttpResponseMessage SaveMessage(FormDataCollection form)
         {
-            return Request.CreateResponse(HttpStatusCode.OK, new { saved = true, formdata = form }, new JsonMediaTypeFormatter());
+            Thread.Sleep(3000);
+            base.Stopwatch.Stop();
+            return Request.CreateResponse(HttpStatusCode.OK, new { save = true, timeElapsted = base.Stopwatch.Elapsed.Milliseconds }, new JsonMediaTypeFormatter());
         }
     }
 }

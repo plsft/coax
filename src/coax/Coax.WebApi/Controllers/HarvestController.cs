@@ -27,14 +27,5 @@ namespace Coax.WebApi.Controllers
         {
             return Request.CreateResponse(HttpStatusCode.OK, new { saved = true, formdata = form }, new JsonMediaTypeFormatter());
         }
-
-        [Route("harvest/message/save")]
-        [HttpGet]
-        public HttpResponseMessage SaveMessageGet()
-        {
-            return Request.CreateResponse(HttpStatusCode.OK, new { saved = true, formdata = ""}, new JsonMediaTypeFormatter());
-        }
-
-
     }
 }

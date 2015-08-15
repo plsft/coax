@@ -1,4 +1,5 @@
 ﻿
+using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 
@@ -11,9 +12,10 @@ namespace Coax.WebApi.Controllers
         }
 
         [HttpOptions]
+        [HttpGet]
         public HttpResponseMessage Options()
         {
-            return null; 
+            return new HttpResponseMessage { StatusCode = HttpStatusCode.OK };
         }
     }
 }

@@ -8,7 +8,7 @@ namespace Coax.WebApi.Controllers
     public class HarvestController : ApiControllerBase
     {
         /*
-            POST http://localhost:55706/harvest/savemessage HTTP/1.1
+            POST http://localhost:55706/harvest/message/save  HTTP/1.1
             Host: localhost:55706
             Content-Length: 6
             Content-Type: application/x-www-form-urlencoded

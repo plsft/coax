@@ -53,3 +53,5 @@ C:\plsft\coax\src\coax\Coax.WebApi\obj\Debug\Coax.WebApi.dll
 C:\plsft\coax\src\coax\Coax.WebApi\obj\Debug\Coax.WebApi.pdb
 C:\plsft\coax\src\coax\Coax.WebApi\bin\WebActivator.dll
 C:\plsft\coax\src\coax\Coax.WebApi\bin\WebActivator.pdb
+C:\plsft\coax\src\coax\Coax.WebApi\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll
+C:\plsft\coax\src\coax\Coax.WebApi\bin\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.xml

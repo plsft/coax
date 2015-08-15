@@ -14,10 +14,6 @@ C:\plsft\coax\src\coax\Coax.WebApi\bin\Helix.config
 C:\plsft\coax\src\coax\Coax.WebApi\bin\Coax.WebApi.dll.config
 C:\plsft\coax\src\coax\Coax.WebApi\bin\Coax.WebApi.dll
 C:\plsft\coax\src\coax\Coax.WebApi\bin\Coax.WebApi.pdb
-C:\plsft\coax\src\coax\Coax.WebApi\bin\AttributeRouting.dll
-C:\plsft\coax\src\coax\Coax.WebApi\bin\AttributeRouting.Web.dll
-C:\plsft\coax\src\coax\Coax.WebApi\bin\AttributeRouting.Web.Http.dll
-C:\plsft\coax\src\coax\Coax.WebApi\bin\AttributeRouting.Web.Http.WebHost.dll
 C:\plsft\coax\src\coax\Coax.WebApi\bin\Coax.Data.dll
 C:\plsft\coax\src\coax\Coax.WebApi\bin\Coax.General.dll
 C:\plsft\coax\src\coax\Coax.WebApi\bin\Coax.Library.dll
@@ -40,10 +36,6 @@ C:\plsft\coax\src\coax\Coax.WebApi\bin\Helix.pdb
 C:\plsft\coax\src\coax\Coax.WebApi\bin\Coax.Data.pdb
 C:\plsft\coax\src\coax\Coax.WebApi\bin\Coax.General.pdb
 C:\plsft\coax\src\coax\Coax.WebApi\bin\Coax.Library.pdb
-C:\plsft\coax\src\coax\Coax.WebApi\bin\AttributeRouting.xml
-C:\plsft\coax\src\coax\Coax.WebApi\bin\AttributeRouting.Web.xml
-C:\plsft\coax\src\coax\Coax.WebApi\bin\AttributeRouting.Web.Http.xml
-C:\plsft\coax\src\coax\Coax.WebApi\bin\AttributeRouting.Web.Http.WebHost.xml
 C:\plsft\coax\src\coax\Coax.WebApi\bin\Newtonsoft.Json.xml
 C:\plsft\coax\src\coax\Coax.WebApi\bin\System.Net.Http.Formatting.xml
 C:\plsft\coax\src\coax\Coax.WebApi\bin\System.Web.Helpers.xml
@@ -59,3 +51,5 @@ C:\plsft\coax\src\coax\Coax.WebApi\bin\RazorTemplates.Core.xml
 C:\plsft\coax\src\coax\Coax.WebApi\obj\Debug\Coax.WebApi.csprojResolveAssemblyReference.cache
 C:\plsft\coax\src\coax\Coax.WebApi\obj\Debug\Coax.WebApi.dll
 C:\plsft\coax\src\coax\Coax.WebApi\obj\Debug\Coax.WebApi.pdb
+C:\plsft\coax\src\coax\Coax.WebApi\bin\WebActivator.dll
+C:\plsft\coax\src\coax\Coax.WebApi\bin\WebActivator.pdb

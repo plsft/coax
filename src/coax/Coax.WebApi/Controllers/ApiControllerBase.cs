@@ -1,4 +1,5 @@
 ﻿
+using System.Net.Http;
 using System.Web.Http;
 
 namespace Coax.WebApi.Controllers
@@ -7,6 +8,12 @@ namespace Coax.WebApi.Controllers
     {
         public ApiControllerBase()
         {
+        }
+
+        [HttpOptions]
+        public HttpResponseMessage Options()
+        {
+            return null; 
         }
     }
 }

@@ -1,9 +1,7 @@
-﻿
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Web.Http;
-using AttributeRouting.Web.Http;
 
 namespace Coax.WebApi.Controllers
 {
@@ -16,20 +14,26 @@ namespace Coax.WebApi.Controllers
             Content-Type: application/x-www-form-urlencoded
         */
 
-        [GET("test")]
+        [Route("harvest/test")]
         [HttpGet]
         public HttpResponseMessage Test()
         {
             return Request.CreateResponse(HttpStatusCode.OK, new { test = true }, new JsonMediaTypeFormatter());
         }
 
-        [POST("savemessage")]
+        [Route("harvest/message/save")]
         [HttpPost]
         public HttpResponseMessage SaveMessage(FormDataCollection form)
         {
             return Request.CreateResponse(HttpStatusCode.OK, new { saved = true, formdata = form }, new JsonMediaTypeFormatter());
         }
 
+        [Route("harvest/message/save")]
+        [HttpGet]
+        public HttpResponseMessage SaveMessageGet()
+        {
+            return Request.CreateResponse(HttpStatusCode.OK, new { saved = true, formdata = ""}, new JsonMediaTypeFormatter());
+        }
 
 
     }

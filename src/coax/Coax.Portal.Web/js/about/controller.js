@@ -23,7 +23,8 @@ function ($log, $http, $scope, $interval) {
             $log.log('in testContller');
             $http.get('humans.txt')
                 .then(function (response) {
-                    $interval(function() {
+                    $interval(function () {
+                            $scope.dataLoading = true;
                             $scope.response = response;
                             $log.log('in interval');
                         }, 4000)

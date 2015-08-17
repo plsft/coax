@@ -66,9 +66,14 @@
     <Reference Include="System.EnterpriseServices" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="app\views\404.html" />
     <Content Include="app\views\about.html" />
     <Content Include="js\about\controller.js" />
+    <Content Include="js\consts.js" />
+    <Content Include="js\other\404controller.js" />
     <Content Include="js\vendor\ui-bootstrap-0.13.3.min.js" />
+    <Content Include="js\vendor\ui-grid\ui-grid.min.css" />
+    <Content Include="js\vendor\ui-grid\ui-grid.min.js" />
     <Content Include="packages.config" />
     <Content Include=".htaccess" />
     <Content Include="css\bootstrap-theme.css.map" />
@@ -108,7 +113,6 @@
     <Content Include="js\vendor\bootstrap.min.js" />
     <Content Include="js\vendor\jquery-1.11.2.min.js" />
     <Content Include="js\vendor\modernizr-2.8.3-respond-1.4.2.min.js" />
-    <Content Include="js\vendor\npm.js" />
     <Content Include="robots.txt" />
     <Content Include="tile-wide.png" />
     <Content Include="tile.png" />

@@ -3,6 +3,8 @@
 // next test
 //http://ui-grid.info/docs/#/tutorial/110_grid_in_modal
 //http://stackoverflow.com/questions/25848416/angularjs-ui-grid-render-hyperlink
+//http://brianhann.com/6-ways-to-take-control-of-how-your-ui-grid-data-is-displayed/
+//**
 
 //controllers bound to page events
 // controllers call services 
@@ -27,6 +29,55 @@ angular.module('About')
 
 
     ])
+    .controller('GridController', ['$log', '$http', '$scope', function($log, $http, $scope) {
+
+        $log.log("in gridController...");
+        $scope.myGridData = [
+            {
+                "firstname": "george",
+                "lastname": "rios",
+                "company": "plurral"
+            },
+            {
+                "firstname": "john",
+                "lastname": "doe",
+                "company": "doe enterprises"
+            }
+        ];
+
+        $scope.gridOptions = {};
+
+        $scope.gridOptions.columnDefs = [
+            { name: 'Hyperlink', field: 'id', cellTemplate: '<a data-toggle="modal" href="404?id={{id}}" data-target="#myModal">Open</a>' },
+            { name: 'id' },
+            { name: 'firstName' },
+            { name: 'lastName' }
+        ];
+        
+        $scope.gridOptions.data = [
+           {
+               "id" : 1,
+               "firstName": "Cox",
+               "lastName": "Carney",
+               "company": "Enormo",
+               "employed": true
+           },
+           {
+               "id": 2,
+               "firstName": "Lorraine",
+               "lastName": "Wise",
+               "company": "Comveyer",
+               "employed": false
+           },
+           {
+               "id": 3,
+               "firstName": "Nancy",
+               "lastName": "Waters",
+               "company": "Fuelton",
+               "employed": false
+           }
+        ];
+    }])
     .controller('TestController', 
     ['$log', '$http',  '$scope', '$interval',
 function ($log, $http, $scope, $interval) {

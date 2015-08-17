@@ -4,15 +4,18 @@
 angular.module('Authentication', []);
 angular.module('Home', []);
 angular.module('About', []);
+angular.module('404', []);
 
 angular.module('CoaxApp', [
         'Authentication',
         'Home',
         'About',
+        '404',
         'ngRoute',
         'ngCookies',
         'ui.bootstrap',
-        'angular-loading-bar'
+        'angular-loading-bar',
+        'ui.grid','ui.grid.cellNav'
     ])
     .config([
         '$routeProvider', function($routeProvider) {
@@ -27,6 +30,10 @@ angular.module('CoaxApp', [
                     controller: 'AboutController',
                     templateUrl: 'app/views/about.html'
                 })
+                .when('/404', {
+                    controller: '404Controller',
+                    templateUrl: 'app/views/404.html'
+                })
                 .when('/', {
                     controller: 'HomeController',
                     templateUrl: 'app/views/home.html'
@@ -34,7 +41,6 @@ angular.module('CoaxApp', [
                 .otherwise({ redirectTo: '/login' });
         }
     ])
-
     .run([
         '$rootScope', '$location', '$cookieStore', '$http',
         function($rootScope, $location, $cookieStore, $http) {
@@ -52,3 +58,4 @@ angular.module('CoaxApp', [
             });
         }
     ]);
+

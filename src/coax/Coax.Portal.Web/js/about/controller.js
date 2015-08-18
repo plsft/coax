@@ -48,7 +48,7 @@ angular.module('About')
         $scope.gridOptions = {};
 
         $scope.gridOptions.columnDefs = [
-            { name: 'Hyperlink', field: 'id', cellTemplate: '<a data-toggle="modal" href="404?id={{id}}" data-target="#myModal">Open</a>' },
+            { name: 'Hyperlink', field: 'id', cellTemplate: '<a data-toggle="modal" role="button" href="#/404?id={{COL_FIELD}}" data-target="#myModal">Open</a>' },
             { name: 'id' },
             { name: 'firstName' },
             { name: 'lastName' }

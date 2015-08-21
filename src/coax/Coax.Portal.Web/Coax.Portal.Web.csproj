@@ -68,9 +68,12 @@
   <ItemGroup>
     <Content Include="app\views\404.html" />
     <Content Include="app\views\about.html" />
+    <Content Include="app\views\detail.html" />
     <Content Include="js\about\controller.js" />
     <Content Include="js\consts.js" />
+    <Content Include="js\detail\controller.js" />
     <Content Include="js\other\404controller.js" />
+    <Content Include="js\vendor\angular-ui-router.js" />
     <Content Include="js\vendor\ui-bootstrap-0.13.3.min.js" />
     <Content Include="js\vendor\ui-grid\ui-grid.min.css" />
     <Content Include="js\vendor\ui-grid\ui-grid.min.js" />

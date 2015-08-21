@@ -1,11 +1,15 @@
 ﻿
-    <style>
-        body {
-            padding-top: 50px;
-            padding-bottom: 20px;
-        }
-    </style>
+<style>
+    body {
+        padding-top: 50px;
+        padding-bottom: 20px;
+    }
 
+    .myGrid {
+        width: 95%;
+        height: 250px;
+    }
+</style>
 
 <nav class="navbar navbar-default navbar-fixed-top">
     <div class="container">
@@ -14,9 +18,9 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
-                <li class="active"><a href="#">Home</a></li>
+                <li><a href="#">Home</a></li>
                 <li><a href="#about">About</a></li>
-                <li><a href="#detail">Detail</a></li>
+                <li class="active"><a href="#detail">Detai</a></li>
                 <li class="dropdown">
                     <a href="javascript;" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
                     <ul class="dropdown-menu">
@@ -37,16 +41,20 @@
         </div><!--/.nav-collapse -->
     </div>
 </nav>
-<br/>
+<br />
 <div class="container">
+    <button class="btn" ng-click="open(1)">Open</button>
+    <button ng-click="OK()">OK</button>
 
     <!-- Main component for a primary marketing message or call to action -->
     <div class="jumbotron">
-        <h1>Welcome to Coax Portal</h1>
-        <p>To see the difference between static and fixed top navbars, just scroll.</p>
-        <p>
-            <a class="btn btn-lg btn-primary" href="#navbar" role="button">View navbar docs &raquo;</a>
-        </p>
+        <h1>Detail {{detail_id}} and {{order_id}}</h1>
+    </div>
+
+  
+    <div ng-controller="Grid1Controller">
+        <div ui-grid="{ data: myGridData }" ui-grid-cellNav class="myGrid"></div>
+        <div ui-grid="gridOptions" ui-grid-cellNav class="myGrid" external-scopes="$scope"></div>
     </div>
     <hr>
     <footer>
@@ -56,6 +64,21 @@
 <!-- /container -->
 
 
+<div modal="showModal" close="cancel()">
+    <div class="modal-header">
+        <h4>Modal Dialog</h4>
+    </div>
+    <div class="modal-body">
+        <p>Example paragraph with some text and {{openedID}}.</p>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-success" ng-click="ok()">Okay</button>
+        <button class="btn" ng-click="cancel()">Cancel</button>
+    </div>
+</div>
 
-<script src="/js/home/controller.js"></script>
+
+
+
+<script src="/js/detail/controller.js"></script>
 

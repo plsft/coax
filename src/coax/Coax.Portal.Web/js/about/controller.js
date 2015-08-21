@@ -6,6 +6,11 @@
 //http://brianhann.com/6-ways-to-take-control-of-how-your-ui-grid-data-is-displayed/
 //**
 
+//http://www.sitepoint.com/creating-stateful-modals-angularjs-angular-ui-router/
+//http://stackoverflow.com/questions/10626885/passing-data-to-a-bootstrap-modal
+
+//https://github.com/fdietz/recipes-with-angular-js-examples/blob/master/chapter8/recipe7/js/app.js
+//http://stackoverflow.com/questions/10490570/call-angular-js-from-legacy-code
 //controllers bound to page events
 // controllers call services 
 // services server api returns json
@@ -13,22 +18,29 @@
 angular.module('About')
     .controller('AboutController',
     [
-        '$scope', '$cookieStore', '$log',
-        function ($scope, $cookieStore, $log) {
+        '$scope', '$cookieStore', '$log', '$state',
+        function ($scope, $cookieStore, $log, $state ) {
             $scope.currentUser = $cookieStore.get('login_user');
             $scope.item = {};
             $scope.items = ['item1', 'item2', 'item3'];
             $log.log('test');
-         
+            
             $scope.OK = function () {
                 $log.log('ok in testController');
             };
 
-           
+            $scope.opened = function () {
+                $log.log('ok in opened.modal');
+                $log.log("got coreID:" + localStorage.coreId);
+            };
         }
-
-
     ])
+    .controller('ModalController', ['$log', '$scope', '$state', function($log, $scope, $state) {
+        $log.log("in modalController...");
+        $log.log("got coreID:" + localStorage.coreId);
+
+
+    }])
     .controller('GridController', ['$log', '$http', '$scope', function($log, $http, $scope) {
 
         $log.log("in gridController...");
@@ -45,11 +57,15 @@ angular.module('About')
             }
         ];
 
+     
+
         $scope.gridOptions = {};
 
         $scope.gridOptions.columnDefs = [
-            { name: 'Hyperlink', field: 'id', cellTemplate: '<a class="btn btn-info"  data-toggle="modal" href="/#/404?id={{COL_FIELD}}" data-target="#myModal">Open!</a>' },
-            //{ name: 'Hyperlink', field: 'id', cellTemplate: '<a data-toggle="modal" href="http://fiddle.jshell.net/bHmRB/51/show/?id={{COL_FIELD}}" data-target="#myModal">Open!</a>' },
+            
+            //{ name: 'Hyperlink', field: 'id', cellTemplate: '<a data-toggle="modal" data-id="{{COL_FIELD}}" title="Add this item" class="open-AddBookDialog btn btn-primary" href="#/">test</a>' },
+            //{ name: 'Hyperlink', field: 'id', cellTemplate: '<button class="btn btn-info" data-core-id="{{COL_FIELD}}" data-toggle="modal" href="#/404?id={{COL_FIELD}}" data-target="#myModal" ui-sref="Modal.success">Open!</button>' },
+            { name: 'Hyperlink', field: 'id', cellTemplate: '<button class="btn btn-info" data-core-id="{{COL_FIELD}}" data-toggle="modal" href="#" data-target="#myModal" ng-click="opened()">Open!</button>' },
             { name: 'id' },
             { name: 'firstName' },
             { name: 'lastName' }

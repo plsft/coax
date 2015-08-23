@@ -17,10 +17,10 @@
 
 angular.module('About')
     .controller('AboutController',
-    [
-        '$scope', '$cookieStore', '$log', '$state',
-        function ($scope, $cookieStore, $log, $state ) {
+    ['$scope', '$cookieStore', '$log', '$state', '$rootScope', 
+        function ($scope, $cookieStore, $log, $state, $rootScope) {
             $scope.currentUser = $cookieStore.get('login_user');
+
             $scope.item = {};
             $scope.items = ['item1', 'item2', 'item3'];
             $log.log('test');

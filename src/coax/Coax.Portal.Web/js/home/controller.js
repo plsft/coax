@@ -3,7 +3,7 @@
 angular.module('Home')
 
 .controller('HomeController',
-    ['$scope', '$cookieStore', 
-    function ($scope, $cookieStore) {
+    ['$scope', '$cookieStore', '$rootScope', 
+    function ($scope, $cookieStore, $rootScope) {
         $scope.currentUser = $cookieStore.get('login_user');
     }]);

@@ -72,6 +72,7 @@
     <Content Include="js\about\controller.js" />
     <Content Include="js\consts.js" />
     <Content Include="js\detail\controller.js" />
+    <Content Include="js\detail\detail_modal.html" />
     <Content Include="js\other\404controller.js" />
     <Content Include="js\vendor\angular-ui-router.js" />
     <Content Include="js\vendor\ui-bootstrap-0.13.3.min.js" />
@@ -126,6 +127,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="img\" />
+    <Folder Include="js\common\" />
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

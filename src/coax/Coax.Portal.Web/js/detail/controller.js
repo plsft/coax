@@ -23,9 +23,10 @@
 angular.module('Detail')
     .controller('DetailController',
     [
-        '$scope', '$cookieStore', '$log', '$state', '$routeParams',
-        function ($scope, $cookieStore, $log, $state, $routeParams) {
+        '$scope', '$cookieStore', '$log', '$state', '$routeParams', '$rootScope',
+        function ($scope, $cookieStore, $log, $state, $routeParams, $rootScope) {
             $scope.currentUser = $cookieStore.get('login_user');
+        
             $scope.item = {};
             $scope.items = ['item1', 'item2', 'item3'];
             $scope.detail_id = $routeParams.detail_id;
@@ -37,14 +38,17 @@ angular.module('Detail')
             $scope.OK = function () {
                 $log.log('ok in detailController');
             };
+
+
             
-       
             $scope.open = function (i) {
                 $scope.showModal = true;
                 $log.log('in open.modal i:' + i);
             };
 
-       $scope.openGrid = function (i) {
+       
+
+            $scope.openGrid = function (i) {
            $scope.openedID = i;
            $scope.showModal = true;
                 $log.log('in open.modal with detail.i: ' + i);
@@ -63,7 +67,7 @@ angular.module('Detail')
 
         }
     ])
-   
+    
     .controller('Grid1Controller', ['$log', '$http', '$scope', function ($log, $http, $scope) {
         $scope.$scope = $scope;
         $scope.openedID = null;
@@ -177,6 +181,43 @@ function ($log, $http, $scope, $interval) {
 
 
 }
+])
 
-    ]);
+.controller('Main', MainCtrl);
+MainCtrl.$inject = ['$modal'];
+function MainCtrl($modal) {
+    var vm = this;
+    vm.people = [
+      'Fred',
+      'Jim',
+      'Bob'
+    ];
+  
+    function deleteModal(person) {
+        $modal.open({
+            templateUrl: 'js/detail/detail_modal.html',
+            controller: ['$modalInstance', 'people', 'person', DeleteModalCtrl],
+            controllerAs: 'vm',
+            resolve: {
+                people: function () { return vm.people },
+                person: function() { return person; }
+            }
+        });
+    }
 
+    vm.deleteModal = deleteModal;
+}
+
+function DeleteModalCtrl($modalInstance, people, person) {
+    var vm = this;
+  
+    function deletePerson() {
+        people.splice(people.indexOf(person), 1);
+        $modalInstance.close();
+    }
+
+    vm.person = person;
+    vm.deletePerson = deletePerson;
+  
+   
+};

@@ -1,0 +1,10 @@
+﻿<div class="modal-header">
+    <h3 class="modal-title">Delete {{ vm.person }}?</h3>
+</div>
+<div class="modal-body">
+    Are you sure you want to delete {{ vm.person }}?
+</div>
+<div class="modal-footer">
+    <button class="btn btn-danger" ng-click="vm.deletePerson()">Delete</button>
+    <button class="btn" ng-click="$close()">Cancel</button>
+</div>

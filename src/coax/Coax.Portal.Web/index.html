@@ -39,7 +39,7 @@
 </head>
 <body>
     <div class="container">
-        <nav class="navbar navbar-default navbar-fixed-top ng-scope" ng-if="__authenticated">
+        <nav class="navbar navbar-default navbar-fixed-top ng-scope" ng-show="__authenticated && $location.path() !== '/login'">
             <div class="container">
                 <div class="navbar-header">
                     <a class="navbar-brand" href="#/">COAX</a>
@@ -49,22 +49,25 @@
                         <li><a href="#/">Home</a></li>
                         <li><a href="#/about">About</a></li>
                         <li><a href="#/detail">Detail</a></li>
+
+                        
+                        <li class="dropdown">
+                            <a class="dropdown-toggle" data-toggle="dropdown">
+                                Menu
+                                <span class="caret"></span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#/detail/1/1">Detail 1</a></li>
+                                <li><a href="#/detail/2/2">Detail 2</a></li>
+                                <li><a href="#/detail/3/3">Detail 3</a></li>
+                                <li role="separator" class="divider"></li>
+                                <li><a href="#/login">Logout</a></li>
+                            </ul>
+                        </li>
+                        
+                      
                     </ul>
-
-                    <div class="btn-group" dropdown="" is-open="status.isopen">
-                        <button type="button" class="btn btn-primary dropdown-toggle" ng-disabled="disabled">
-                            Button dropdown <span class="caret"></span>
-                        </button>
-                        <ul class="dropdown-menu" role="menu">
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li class="divider"></li>
-                            <li><a href="#">Separated link</a></li>
-                        </ul>
-                    </div>
                     <ul class="nav navbar-nav navbar-right">
-
                         <li class="active"><a href="#/login" class="ng-binding">test<span class="sr-only"></span></a></li>
                     </ul>
                 </div>

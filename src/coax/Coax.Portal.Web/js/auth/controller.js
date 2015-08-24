@@ -1,10 +1,11 @@
 ﻿'use strict';
 
 angular.module('Authentication')
-
-.controller('LoginController',
-    ['$scope', '$rootScope', '$location', 'AuthenticationService', '$rootScope',
-    function ($scope, $rootScope, $location, AuthenticationService) {
+    .controller('LoginController',
+    [
+        '$scope', '$rootScope', '$location', 'AuthenticationService', '$rootScope', '$route',
+    function ($scope, $rootScope, $location, AuthenticationService, $route) {
+        //$route.reload();
         // reset login status
         AuthenticationService.ClearCredentials();
 

@@ -74,6 +74,7 @@
     <Content Include="js\detail\controller.js" />
     <Content Include="js\detail\detail_modal.html" />
     <Content Include="js\other\404controller.js" />
+    <Content Include="js\vendor\alertify.min.js" />
     <Content Include="js\vendor\angular-ui-router.js" />
     <Content Include="js\vendor\ui-bootstrap-0.13.3.min.js" />
     <Content Include="js\vendor\ui-grid\ui-grid.min.css" />

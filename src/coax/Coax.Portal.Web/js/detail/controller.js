@@ -63,8 +63,6 @@ angular.module('Detail')
                 $scope.showModal = false;
                 $log.log('cancel in open.modal');
             };
-
-
         }
     ])
     

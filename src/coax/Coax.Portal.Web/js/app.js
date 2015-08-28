@@ -58,7 +58,7 @@ angular.module('CoaxApp', [
                 .otherwise({ redirectTo: '/login' });
         }
     ])
-  
+
     .run(['$rootScope', '$location', '$cookieStore', '$http', '$state', 
         function ($rootScope, $location, $cookieStore, $http, $state) {
             $rootScope.currentUser = {};
@@ -70,11 +70,11 @@ angular.module('CoaxApp', [
             }
 
             $rootScope.state = $state;
+            $rootScope.__authenticated = $location.path() !== '/login';
 
             $rootScope.$on('$locationChangeStart', function(event, next, current) {
              if ($location.path() !== '/login' && !$rootScope.globals.currentUser) {
                  $location.path('/login');
-                 $rootScope.__authenticated = false;
                 }
             });
         }

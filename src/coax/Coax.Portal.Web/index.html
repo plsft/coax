@@ -6,23 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>COAX</title>
-
     
-    <script data-require="jquery@*" data-semver="2.1.3" src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
-    <script data-require="angular.js@1.3.15" data-semver="1.3.15" src="https://code.angularjs.org/1.3.15/angular.js"></script>
-    <script data-require="ui-bootstrap@*" data-semver="0.12.1" src="http://angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.12.1.min.js"></script>
+    <script data-require="jquery@*" data-semver="2.1.3" src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script data-require="angular.js@1.3.15" data-semver="1.3.15" src="//code.angularjs.org/1.3.15/angular.js"></script>
+    <script data-require="ui-bootstrap@*" data-semver="0.12.1" src="//angular-ui.github.io/bootstrap/ui-bootstrap-tpls-0.12.1.min.js"></script>
 
     <script src="//code.angularjs.org/1.2.20/angular-route.js"></script>
     <script src="//code.angularjs.org/1.2.13/angular-cookies.js"></script>
     <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular-loading-bar/0.7.1/loading-bar.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/angular-loading-bar/0.7.1/loading-bar.min.js"></script>
     <script src="js/vendor/angular-ui-router.js"></script>
 
-    <link data-require="bootstrap-css@*" data-semver="3.3.1" rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.1/css/bootstrap.min.css" />
+    <link data-require="bootstrap-css@*" data-semver="3.3.1" rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="//ui-grid.info/release/ui-grid-unstable.css" type="text/css">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/angular-loading-bar/0.7.1/loading-bar.min.css" type='text/css' media='all' />
     <link rel="stylesheet" href="css/main.css"/>
-
 
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -35,11 +34,12 @@
         padding-top: 50px;
         padding-bottom: 20px;
     }
+
     </style>
 </head>
 <body>
     <div class="container">
-        <nav class="navbar navbar-default navbar-fixed-top ng-scope" ng-show="__authenticated && $location.path() !== '/login'">
+        <nav class="navbar navbar-default navbar-fixed-top ng-scope" role="navigation" ng-show="__authenticated && $location.path() !== '/login'">
             <div class="container">
                 <div class="navbar-header">
                     <a class="navbar-brand" href="#/">COAX</a>
@@ -68,7 +68,7 @@
                       
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
-                        <li class="active"><a href="#/login" class="ng-binding">test<span class="sr-only"></span></a></li>
+                        <li class="active"><a href="#/login" class="ng-binding">{{currentUser}}<span class="sr-only"></span></a></li> 
                     </ul>
                 </div>
             </div>

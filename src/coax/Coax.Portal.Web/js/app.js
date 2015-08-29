@@ -59,7 +59,7 @@ angular.module('CoaxApp', [
         }
     ])
 
-    .run(['$rootScope', '$location', '$cookieStore', '$http', '$state', 
+    .run(['$rootScope', '$location', '$cookieStore', '$http', '$state',
         function ($rootScope, $location, $cookieStore, $http, $state) {
             $rootScope.currentUser = {};
 

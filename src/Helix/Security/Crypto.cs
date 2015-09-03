@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 
 
 namespace Helix.Security
@@ -39,6 +42,20 @@ namespace Helix.Security
             }
 
             return encString;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        public static string HashString(string value)
+        {
+            const string salt = ":!@#$%^&";
+            var sha1 = new SHA1CryptoServiceProvider();
+            var result = sha1.ComputeHash(Encoding.UTF8.GetBytes(value + salt));
+            var hex = result.Select(h => h.ToString("x2"));
+            return string.Join("", hex);
         }
 
         /// <summary>

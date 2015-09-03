@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Web.Security;
 
-namespace Helix.Utility
+namespace Helix.Security
 {
     public sealed class Auth
     {

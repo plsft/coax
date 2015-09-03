@@ -52,6 +52,7 @@
     <Compile Include="Infra\PetaExtensions.cs" />
     <Compile Include="Utility\DbConnect.cs" />
     <Compile Include="Utility\Logger.cs" />
+    <Compile Include="Utility\Mailer.cs" />
     <Compile Include="Utility\Settings.cs" />
     <Compile Include="Utility\SqlCmdBuilder.cs" />
     <Compile Include="Json\DynamicJson.cs" />

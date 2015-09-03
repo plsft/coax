@@ -51,6 +51,7 @@
     <Compile Include="Data\SqlHelper.cs" />
     <Compile Include="Infra\Peta.cs" />
     <Compile Include="Infra\PetaExtensions.cs" />
+    <Compile Include="Utility\Auth.cs" />
     <Compile Include="Utility\Db.cs" />
     <Compile Include="Utility\DbConnect.cs" />
     <Compile Include="Utility\Logger.cs" />

@@ -2154,11 +2154,10 @@ namespace Helix.Infra.Peta
 
                                 il.Emit(OpCodes.Dup); // poco,poco
 
-                                // Do we need to install a converter?
                                 var converter = GetConverter(ForceDateTimesToUtc, pc, srcType, dstType);
 
                                 // Fast
-                                bool Handled = false;
+                                var Handled = false;
                                 if (converter == null)
                                 {
                                     var valuegetter = typeof (IDataRecord).GetMethod("Get" + srcType.Name, new Type[] {typeof (int)});
@@ -2170,7 +2169,6 @@ namespace Helix.Infra.Peta
                                         il.Emit(OpCodes.Ldc_I4, i); // *,rdr,i
                                         il.Emit(OpCodes.Callvirt, valuegetter); // *,value
 
-                                        // Convert to Nullable
                                         if (Nullable.GetUnderlyingType(dstType) != null)
                                         {
                                             il.Emit(OpCodes.Newobj, dstType.GetConstructor(new[] {Nullable.GetUnderlyingType(dstType)}));
@@ -2181,10 +2179,8 @@ namespace Helix.Infra.Peta
                                     }
                                 }
 
-                                // Not so fast
                                 if (!Handled)
                                 {
-                                    // Setup stack for call to converter
                                     AddConverterToStack(il, converter);
 
                                     // "value = rdr.GetValue(i)"

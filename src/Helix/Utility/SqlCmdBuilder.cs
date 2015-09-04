@@ -46,10 +46,6 @@ namespace Helix.Utility
             return this;
         }
 
-        public string Sql
-        {
-            get { return CompletedSqlCommand.CommandText; }
-        }
-
+        public string Sql => CompletedSqlCommand.CommandText;
     }
 }

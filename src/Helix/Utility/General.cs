@@ -1,10 +1,8 @@
-﻿
+﻿using System;
 using System.Globalization;
 
 namespace Helix.Utility
 {
-    using System;
-
     public sealed class General
     {
 
@@ -12,7 +10,7 @@ namespace Helix.Utility
         /// Random code; default length=8;
         /// </summary>
         /// <returns></returns>
-        public static String GenerateRandomCode()
+        public static string GenerateRandomCode()
         {
             return GenerateRandomCode(8);
         }
@@ -22,7 +20,7 @@ namespace Helix.Utility
         /// </summary>
         /// <param name="length"></param>
         /// <returns></returns>
-        public static String GenerateRandomCode(int length)
+        public static string GenerateRandomCode(int length)
         {
             return (Guid.NewGuid().ToString().Replace("-", "") + "" + new Random().Next(128)).ToLower().ToString(CultureInfo.InvariantCulture).Substring(0, length);
         }
@@ -32,7 +30,7 @@ namespace Helix.Utility
         /// </summary>
         /// <param name="length"></param>
         /// <returns></returns>
-        public static String GenerateRandomPassword(int length)
+        public static string GenerateRandomPassword(int length)
         {
             return Guid.NewGuid().ToString().Substring(0, length).Replace("-", "");
         }

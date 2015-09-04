@@ -1,10 +1,9 @@
-﻿
+﻿using System;
+using System.Data;
+using System.Data.SqlClient;
+
 namespace Helix.Utility
 {
-    using System;
-    using System.Data;
-    using System.Data.SqlClient;
-
     public sealed class DatabaseOps
     {
 

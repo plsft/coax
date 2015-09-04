@@ -1,9 +1,7 @@
-﻿using System;
+﻿using System.IO;
 
 namespace Helix.Utility
 {
-    using System.IO;
-
     public sealed class FileOps
     {
         /// <summary>

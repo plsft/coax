@@ -8,4 +8,3 @@ C:\plsft\coax\src\Helix\bin\Debug\Helix.dll
 C:\plsft\coax\src\Helix\bin\Debug\Helix.pdb
 C:\plsft\coax\src\Helix\obj\Debug\Helix.dll
 C:\plsft\coax\src\Helix\obj\Debug\Helix.pdb
-C:\plsft\coax\src\Helix\obj\Debug\Helix.csprojResolveAssemblyReference.cache

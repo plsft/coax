@@ -6,6 +6,7 @@
  * Special thanks to Rob Conery (@robconery) for original inspiration (ie:Massive) and for 
  * use of Subsonic's T4 templates, Rob Sullivan (@DataChomp) for hard core DBA advice 
  * and Adam Schroder (@schotime) for lots of suggestions, improvements and Oracle support
+ * heavily edited by George Rios 2013-2015
  */
 
 // Define PETAPOCO_NO_DYNAMIC in your project settings on .NET 3.5
@@ -17,6 +18,7 @@ using System.Text;
 using System.Configuration;
 using System.Data.Common;
 using System.Data;
+using System.Dynamic;
 using System.Text.RegularExpressions;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -93,7 +95,7 @@ namespace Helix.Infra.Peta
         public string Value { get; private set; }
     }
 
-    // Specific the primary key of a poco class (and optional sequence name for Oracle)
+    // Specific the primary key of a poco class 
     [AttributeUsage(AttributeTargets.Class)]
     public class PrimaryKeyAttribute : Attribute
     {
@@ -116,7 +118,6 @@ namespace Helix.Infra.Peta
         }
     }
 
-    // Results from paged request
     public class Page<T>
     {
         public long CurrentPage { get; set; }
@@ -127,7 +128,6 @@ namespace Helix.Infra.Peta
         public object Context { get; set; }
     }
 
-    // Pass as parameter value to force to DBType.AnsiString
     public class AnsiString
     {
         public AnsiString(string str)
@@ -138,7 +138,6 @@ namespace Helix.Infra.Peta
         public string Value { get; private set; }
     }
 
-    // Used by IMapper to override table bindings for an object
     public class TableInfo
     {
         public string TableName { get; set; }
@@ -147,7 +146,6 @@ namespace Helix.Infra.Peta
         public string SequenceName { get; set; }
     }
 
-    // Optionally provide an implementation of this to Database.Mapper
     public interface IMapper
     {
         void GetTableInfo(Type t, TableInfo ti);
@@ -156,32 +154,21 @@ namespace Helix.Infra.Peta
         Func<object, object> GetToDbConverter(Type SourceType);
     }
 
-    // This will be merged with IMapper in the next major version
     public interface IMapper2 : IMapper
     {
         Func<object, object> GetFromDbConverter(Type DestType, Type SourceType);
     }
 
-    // Database class ... this is where most of the action happens
     public class Database : IDisposable
     {
         /// <summary>
         /// exposes current DbProvider
         /// </summary>
-        public DBType DatabaseProviderType
-        {
-            get { return this._dbType; }
-        }
+        public DBType DatabaseProviderType => this._dbType;
 
-        public Transaction DatabaseTransaction
-        {
-            get { return this.GetTransaction(); }
-        }
+        public Transaction DatabaseTransaction => this.GetTransaction();
 
-        public Sql DatabaseSql
-        {
-            get { return new Sql(); }
-        }
+        public Sql DatabaseSql => new Sql();
 
         public Database(IDbConnection connection)
         {
@@ -211,7 +198,6 @@ namespace Helix.Infra.Peta
         {
             KeepConnectionAlive = keepConnectionAlive;
 
-            // Use first?
             if (connectionStringName == "")
                 connectionStringName = ConfigurationManager.ConnectionStrings[0].Name;
 
@@ -220,7 +206,6 @@ namespace Helix.Infra.Peta
                 throw new InvalidOperationException("Can't find any config file for connection string - StringName['" + connectionStringName + "']");
             }
 
-            // Work out connection string and provider name
             var providerName = "System.Data.SqlClient";
             if (ConfigurationManager.ConnectionStrings[connectionStringName] != null)
             {
@@ -232,7 +217,6 @@ namespace Helix.Infra.Peta
                 throw new InvalidOperationException("Can't find a connection string with the name '" + connectionStringName + "'");
             }
 
-            // Store factory and connection string
             _connectionString = ConfigurationManager.ConnectionStrings[connectionStringName].ConnectionString;
             _providerName = providerName;
             CommonConstruct();
@@ -250,7 +234,6 @@ namespace Helix.Infra.Peta
 
         private DBType _dbType = DBType.SqlServer;
 
-        // Common initialization
         private void CommonConstruct()
         {
             _transactionDepth = 0;
@@ -261,7 +244,7 @@ namespace Helix.Infra.Peta
             if (_providerName != null)
                 _factory = DbProviderFactories.GetFactory(_providerName);
 
-            string dbtype = (_factory == null ? _sharedConnection.GetType() : _factory.GetType()).Name;
+            string dbtype = (_factory?.GetType() ?? _sharedConnection.GetType()).Name;
 
             // Try using type name first (more reliable)
             if (dbtype.StartsWith("MySql")) _dbType = DBType.MySql;
@@ -283,18 +266,13 @@ namespace Helix.Infra.Peta
                 _paramPrefix = ":";
         }
 
-        // Automatically close one open shared connection
         public void Dispose()
         {
-            // Automatically close one open connection reference
-            //  (Works with KeepConnectionAlive and manually opening a shared connection)
             CloseSharedConnection();
         }
 
-        // Set to true to keep the first opened connection alive until this object is disposed
         public bool KeepConnectionAlive { get; set; }
 
-        // Open a connection (can be nested)
         public void OpenSharedConnection()
         {
             if (_sharedConnectionDepth == 0)
@@ -311,7 +289,6 @@ namespace Helix.Infra.Peta
             _sharedConnectionDepth++;
         }
 
-        // Close a previously opened connection
         public void CloseSharedConnection()
         {
             if (_sharedConnectionDepth > 0)
@@ -329,10 +306,7 @@ namespace Helix.Infra.Peta
         }
 
         // Access to our shared connection
-        public IDbConnection Connection
-        {
-            get { return _sharedConnection; }
-        }
+        public IDbConnection Connection => _sharedConnection;
 
         // Helper to create a transaction scope
         public Transaction GetTransaction()
@@ -340,7 +314,6 @@ namespace Helix.Infra.Peta
             return new Transaction(this);
         }
 
-        // Use by derived repo generated by T4 templates
         public virtual void OnBeginTransaction()
         {
         }
@@ -349,24 +322,21 @@ namespace Helix.Infra.Peta
         {
         }
 
-        // Start a new transaction, can be nested, every call must be
-        //	matched by a call to AbortTransaction or CompleteTransaction
+        // Start a new transaction, can be nested, every call must be matched by a call to AbortTransaction or CompleteTransaction
         // Use `using (var scope=db.Transaction) { scope.Complete(); }` to ensure correct semantics
         public void BeginTransaction()
         {
             _transactionDepth++;
 
-            if (_transactionDepth == 1)
-            {
-                OpenSharedConnection();
-                _transaction = _sharedConnection.BeginTransaction();
-                _transactionCancelled = false;
-                OnBeginTransaction();
-            }
+            if (_transactionDepth != 1)
+                return;
 
+            OpenSharedConnection();
+            _transaction = _sharedConnection.BeginTransaction();
+            _transactionCancelled = false;
+            OnBeginTransaction();
         }
 
-        // Internal helper to cleanup transaction stuff
         private void CleanupTransaction()
         {
             OnEndTransaction();
@@ -394,7 +364,6 @@ namespace Helix.Infra.Peta
             _transaction.Rollback();
         }
 
-        // Abort the entire outer most transaction scope
         public void AbortTransaction()
         {
             _transactionCancelled = true;
@@ -402,15 +371,31 @@ namespace Helix.Infra.Peta
                 CleanupTransaction();
         }
 
-        // Complete the transaction
         public void CompleteTransaction()
         {
             if ((--_transactionDepth) == 0)
                 CleanupTransaction();
         }
 
-        // Helper to handle named parameters from object properties
-        private static Regex rxParams = new Regex(@"(?<!@)@\w+", RegexOptions.Compiled);
+        private static readonly Regex rxParams = new Regex(@"(?<!@)@\w+", RegexOptions.Compiled);
+        private static readonly Regex rxParamsPrefix = new Regex(@"(?<!@)@\w+", RegexOptions.Compiled);
+        private readonly Regex rxSelect = new Regex(@"\A\s*(SELECT|EXECUTE|CALL)\s", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Multiline);
+        private readonly Regex rxFrom = new Regex(@"\A\s*FROM\s", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Multiline);
+
+        private static readonly Regex rxColumns = new Regex(@"\A\s*SELECT\s+((?:\((?>\((?<depth>)|\)(?<-depth>)|.?)*(?(depth)(?!))\)|.)*?)(?<!,\s+)\bFROM\b",
+            RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.Compiled);
+
+        private static readonly Regex rxOrderBy =
+            new Regex(
+                @"\bORDER\s+BY\s+(?:\((?>\((?<depth>)|\)(?<-depth>)|.?)*(?(depth)(?!))\)|[\w\(\)\.])+(?:\s+(?:ASC|DESC))?(?:\s*,\s*(?:\((?>\((?<depth>)|\)(?<-depth>)|.?)*(?(depth)(?!))\)|[\w\(\)\.])+(?:\s+(?:ASC|DESC))?)*",
+                RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.Compiled);
+
+        private static readonly Regex rxDistinct = new Regex(@"\ADISTINCT\s", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.Compiled);
+        private static Dictionary<string, object> MultiPocoFactories = new Dictionary<string, object>();
+        private static Dictionary<string, object> AutoMappers = new Dictionary<string, object>();
+        private static System.Threading.ReaderWriterLockSlim RWLock = new System.Threading.ReaderWriterLockSlim();
+
+
 
         public static string ProcessParams(string _sql, object[] args_src, List<object> args_dest)
         {
@@ -423,15 +408,14 @@ namespace Helix.Infra.Peta
                 int paramIndex;
                 if (int.TryParse(param, out paramIndex))
                 {
-                    // Numbered parameter
                     if (paramIndex < 0 || paramIndex >= args_src.Length)
-                        throw new ArgumentOutOfRangeException(string.Format("Parameter '@{0}' specified but only {1} parameters supplied (in `{2}`)", paramIndex, args_src.Length, _sql));
+                        throw new ArgumentOutOfRangeException($"Parameter `@{paramIndex}` specified but only {args_src.Length} parameters supplied (in `{_sql}`)");
+
                     arg_val = args_src[paramIndex];
                 }
                 else
                 {
-                    // Look for a property on one of the arguments with this name
-                    bool found = false;
+                    var found = false;
                     arg_val = null;
                     foreach (var o in args_src)
                     {
@@ -445,10 +429,9 @@ namespace Helix.Infra.Peta
                     }
 
                     if (!found)
-                        throw new ArgumentException(string.Format("Parameter '@{0}' specified but none of the passed arguments have a property with this name (in '{1}')", param, _sql));
+                        throw new ArgumentException($"Parameter `@{param}` specified but none of the passed arguments have a property with this name (in `{_sql}`)");
                 }
 
-                // Expand collections to parameter lists
                 if ((arg_val as System.Collections.IEnumerable) != null &&
                     (arg_val as string) == null &&
                     (arg_val as byte[]) == null)
@@ -466,32 +449,28 @@ namespace Helix.Infra.Peta
                     args_dest.Add(arg_val);
                     return "@" + (args_dest.Count - 1).ToString();
                 }
-            }
-                );
+            });
         }
 
-        // Add a parameter to a DB command
         private void AddParam(IDbCommand cmd, object item, string ParameterPrefix)
         {
-            // Convert value to from poco type to db type
-            if (Database.Mapper != null && item != null)
+            if (Mapper != null && item != null)
             {
-                var fn = Database.Mapper.GetToDbConverter(item.GetType());
+                var fn = Mapper.GetToDbConverter(item.GetType());
                 if (fn != null)
                     item = fn(item);
             }
 
-            // Support passed in parameters
             var idbParam = item as IDbDataParameter;
             if (idbParam != null)
             {
-                idbParam.ParameterName = string.Format("{0}{1}", ParameterPrefix, cmd.Parameters.Count);
+                idbParam.ParameterName = $"{ParameterPrefix}{cmd.Parameters.Count}";
                 cmd.Parameters.Add(idbParam);
                 return;
             }
 
             var p = cmd.CreateParameter();
-            p.ParameterName = string.Format("{0}{1}", ParameterPrefix, cmd.Parameters.Count);
+            p.ParameterName = $"{ParameterPrefix}{cmd.Parameters.Count}";
             if (item == null)
             {
                 p.Value = DBNull.Value;
@@ -525,15 +504,15 @@ namespace Helix.Infra.Peta
                 {
                     p.Value = ((bool) item) ? 1 : 0;
                 }
-                else if (item.GetType().Name == "SqlGeography") //SqlGeography is a CLR Type
+                else if (item.GetType().Name == "SqlGeography") 
                 {
-                    p.GetType().GetProperty("UdtTypeName").SetValue(p, "geography", null); //geography is the equivalent SQL Server Type
+                    p.GetType().GetProperty("UdtTypeName").SetValue(p, "geography", null); 
                     p.Value = item;
                 }
 
-                else if (item.GetType().Name == "SqlGeometry") //SqlGeometry is a CLR Type
+                else if (item.GetType().Name == "SqlGeometry") 
                 {
-                    p.GetType().GetProperty("UdtTypeName").SetValue(p, "geometry", null); //geography is the equivalent SQL Server Type
+                    p.GetType().GetProperty("UdtTypeName").SetValue(p, "geometry", null); 
                     p.Value = item;
                 }
                 else
@@ -545,12 +524,10 @@ namespace Helix.Infra.Peta
             cmd.Parameters.Add(p);
         }
 
-        // Create a command
-        private static Regex rxParamsPrefix = new Regex(@"(?<!@)@\w+", RegexOptions.Compiled);
+
 
         public IDbCommand CreateCommand(IDbConnection connection, string sql, params object[] args)
         {
-            // Perform named argument replacements
             if (EnableNamedParams)
             {
                 var new_args = new List<object>();
@@ -558,16 +535,15 @@ namespace Helix.Infra.Peta
                 args = new_args.ToArray();
             }
 
-            // Perform parameter prefix replacements
             if (_paramPrefix != "@")
                 sql = rxParamsPrefix.Replace(sql, m => _paramPrefix + m.Value.Substring(1));
             sql = sql.Replace("@@", "@"); // <- double @@ escapes a single @
 
-            // Create the command and add parameters
-            IDbCommand cmd = connection.CreateCommand();
+            var cmd = connection.CreateCommand();
             cmd.Connection = connection;
             cmd.CommandText = sql;
             cmd.Transaction = _transaction;
+
             foreach (var item in args)
             {
                 AddParam(cmd, item, _paramPrefix);
@@ -578,23 +554,18 @@ namespace Helix.Infra.Peta
                 cmd.GetType().GetProperty("BindByName").SetValue(cmd, true, null);
             }
 
-            if (!String.IsNullOrEmpty(sql))
+            if (!string.IsNullOrEmpty(sql))
                 DoPreExecute(cmd);
 
             return cmd;
         }
 
-        // Override this to log/capture exceptions
         public virtual void OnException(Exception x)
         {
-            var ex = string.Format("Helix.Peta.OnException [{0}]: Command [{1}] SQL [{2}] Args [{3}] ", x, LastCommand, LastSQL, LastArgs);
+            var ex = $"Helix.Peta.OnException [{x}]: Command [{LastCommand}] SQL [{LastSQL}] Args [{LastArgs}] ";
             throw new Exception(ex);
-
-            //System.Diagnostics.Debug.WriteLine(x.ToString());
-            //System.Diagnostics.Debug.WriteLine(LastCommand);
         }
 
-        // Override this to log commands, or modify command before execution
         public virtual IDbConnection OnConnectionOpened(IDbConnection conn)
         {
             return conn;
@@ -612,7 +583,6 @@ namespace Helix.Infra.Peta
         {
         }
 
-        // Execute a non-query command
         public int Execute(string sql, params object[] args)
         {
             try
@@ -644,7 +614,6 @@ namespace Helix.Infra.Peta
             return Execute(sql.SQL, sql.Arguments);
         }
 
-        // Execute and cast a scalar property
         public T ExecuteScalar<T>(string sql, params object[] args)
         {
             try
@@ -654,7 +623,7 @@ namespace Helix.Infra.Peta
                 {
                     using (var cmd = CreateCommand(_sharedConnection, sql, args))
                     {
-                        object val = cmd.ExecuteScalar();
+                        var val = cmd.ExecuteScalar();
                         OnExecutedCommand(cmd);
                         return (T) Convert.ChangeType(val, typeof (T));
                     }
@@ -676,24 +645,20 @@ namespace Helix.Infra.Peta
             return ExecuteScalar<T>(sql.SQL, sql.Arguments);
         }
 
-        private Regex rxSelect = new Regex(@"\A\s*(SELECT|EXECUTE|CALL)\s", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Multiline);
-        private Regex rxFrom = new Regex(@"\A\s*FROM\s", RegexOptions.Compiled | RegexOptions.Singleline | RegexOptions.IgnoreCase | RegexOptions.Multiline);
 
         private string AddSelectClause<T>(string sql)
         {
             if (sql.StartsWith(";"))
                 return sql.Substring(1);
 
-            if (!rxSelect.IsMatch(sql))
-            {
-                var pd = PocoData.ForType(typeof (T));
-                var tableName = EscapeTableName(pd.TableInfo.TableName);
-                string cols = string.Join(", ", (from c in pd.QueryColumns select tableName + "." + EscapeSqlIdentifier(c)).ToArray());
-                if (!rxFrom.IsMatch(sql))
-                    sql = string.Format("SELECT {0} FROM {1} {2}", cols, tableName, sql);
-                else
-                    sql = string.Format("SELECT {0} {1}", cols, sql);
-            }
+            if (rxSelect.IsMatch(sql))
+                return sql;
+
+            var pd = PocoData.ForType(typeof (T));
+            var tableName = EscapeTableName(pd.TableInfo.TableName);
+            var cols = string.Join(", ", (from c in pd.QueryColumns select tableName + "." + EscapeSqlIdentifier(c)).ToArray());
+            sql = !rxFrom.IsMatch(sql) ? $"SELECT {cols} FROM {tableName} {sql}" : $"SELECT {cols} {sql}";
+
             return sql;
         }
 
@@ -701,7 +666,6 @@ namespace Helix.Infra.Peta
         public bool EnableNamedParams { get; set; }
         public bool ForceDateTimesToUtc { get; set; }
 
-        // Return a typed list of pocos
         public List<T> Fetch<T>(string sql, params object[] args)
         {
             return Query<T>(sql, args).ToList();
@@ -712,15 +676,6 @@ namespace Helix.Infra.Peta
             return Fetch<T>(sql.SQL, sql.Arguments);
         }
 
-        private static Regex rxColumns = new Regex(@"\A\s*SELECT\s+((?:\((?>\((?<depth>)|\)(?<-depth>)|.?)*(?(depth)(?!))\)|.)*?)(?<!,\s+)\bFROM\b",
-            RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.Compiled);
-
-        private static Regex rxOrderBy =
-            new Regex(
-                @"\bORDER\s+BY\s+(?:\((?>\((?<depth>)|\)(?<-depth>)|.?)*(?(depth)(?!))\)|[\w\(\)\.])+(?:\s+(?:ASC|DESC))?(?:\s*,\s*(?:\((?>\((?<depth>)|\)(?<-depth>)|.?)*(?(depth)(?!))\)|[\w\(\)\.])+(?:\s+(?:ASC|DESC))?)*",
-                RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.Compiled);
-
-        private static Regex rxDistinct = new Regex(@"\ADISTINCT\s", RegexOptions.IgnoreCase | RegexOptions.Multiline | RegexOptions.Singleline | RegexOptions.Compiled);
 
         public static bool SplitSqlForPaging(string sql, out string sqlCount, out string sqlSelectRemoved, out string sqlOrderBy)
         {
@@ -734,7 +689,7 @@ namespace Helix.Infra.Peta
                 return false;
 
             // Save column list and replace with COUNT(*)
-            Group g = m.Groups[1];
+            var g = m.Groups[1];
             sqlSelectRemoved = sql.Substring(g.Index);
 
             if (rxDistinct.IsMatch(sqlSelectRemoved))
@@ -770,7 +725,7 @@ namespace Helix.Infra.Peta
             if (!SplitSqlForPaging(sql, out sqlCount, out sqlSelectRemoved, out sqlOrderBy))
                 throw new Exception("Unable to parse SQL statement for paged query");
             if (_dbType == DBType.Oracle && sqlSelectRemoved.StartsWith("*"))
-                throw new Exception("Query must alias '*' when performing a paged query.\neg. select t.* from table t order by t.id");
+                throw new Exception("Query must alias `*` when performing a paged query.\neg. select t.* from table t order by t.id");
 
             // Build the SQL for the actual final result
             if (_dbType == DBType.SqlServer || _dbType == DBType.Oracle)
@@ -780,47 +735,45 @@ namespace Helix.Infra.Peta
                 {
                     sqlSelectRemoved = "peta_inner.* FROM (SELECT " + sqlSelectRemoved + ") peta_inner";
                 }
-                sqlPage = string.Format("SELECT * FROM (SELECT ROW_NUMBER() OVER ({0}) peta_rn, {1}) peta_paged WHERE peta_rn>@{2} AND peta_rn<=@{3}",
-                    sqlOrderBy == null ? "ORDER BY (SELECT NULL)" : sqlOrderBy, sqlSelectRemoved, args.Length, args.Length + 1);
+                sqlPage =
+                    $"SELECT * FROM (SELECT ROW_NUMBER() OVER ({(sqlOrderBy ?? "ORDER BY (SELECT NULL)")}) peta_rn, {sqlSelectRemoved}) peta_paged WHERE peta_rn>@{args.Length} AND peta_rn<=@{args.Length + 1}";
                 args = args.Concat(new object[] {skip, skip + take}).ToArray();
             }
             else if (_dbType == DBType.SqlServerCE)
             {
-                sqlPage = string.Format("{0}\nOFFSET @{1} ROWS FETCH NEXT @{2} ROWS ONLY", sql, args.Length, args.Length + 1);
+                sqlPage = $"{sql}\nOFFSET @{args.Length} ROWS FETCH NEXT @{args.Length + 1} ROWS ONLY";
                 args = args.Concat(new object[] {skip, take}).ToArray();
             }
             else
             {
-                sqlPage = string.Format("{0}\nLIMIT @{1} OFFSET @{2}", sql, args.Length, args.Length + 1);
+                sqlPage = $"{sql}\nLIMIT @{args.Length} OFFSET @{args.Length + 1}";
                 args = args.Concat(new object[] {take, skip}).ToArray();
             }
 
         }
 
-        // Fetch a page	
         public Page<T> Page<T>(long page, long itemsPerPage, string sql, params object[] args)
         {
             string sqlCount, sqlPage;
             BuildPageQueries<T>((page - 1)*itemsPerPage, itemsPerPage, sql, ref args, out sqlCount, out sqlPage);
 
-            // Save the one-time command time out and use it for both queries
-            int saveTimeout = OneTimeCommandTimeout;
+            var saveTimeout = OneTimeCommandTimeout;
 
-            // Setup the paged result
-            var result = new Page<T>();
-            result.CurrentPage = page;
-            result.ItemsPerPage = itemsPerPage;
-            result.TotalItems = ExecuteScalar<long>(sqlCount, args);
+            var result = new Page<T>
+            {
+                CurrentPage = page,
+                ItemsPerPage = itemsPerPage,
+                TotalItems = ExecuteScalar<long>(sqlCount, args)
+            };
+
             result.TotalPages = result.TotalItems/itemsPerPage;
+
             if ((result.TotalItems%itemsPerPage) != 0)
                 result.TotalPages++;
 
             OneTimeCommandTimeout = saveTimeout;
-
-            // Get the records
             result.Items = Fetch<T>(sqlPage, args);
 
-            // Done
             return result;
         }
 
@@ -852,7 +805,6 @@ namespace Helix.Infra.Peta
             return SkipTake<T>(skip, take, sql.SQL, sql.Arguments);
         }
 
-        // Return an enumerable collection of pocos
         public IEnumerable<T> Query<T>(string sql, params object[] args)
         {
             if (EnableAutoSelect)
@@ -904,7 +856,6 @@ namespace Helix.Infra.Peta
             }
         }
 
-        // Multi Fetch
         public List<TRet> Fetch<T1, T2, TRet>(Func<T1, T2, TRet> cb, string sql, params object[] args)
         {
             return Query<T1, T2, TRet>(cb, sql, args).ToList();
@@ -920,7 +871,6 @@ namespace Helix.Infra.Peta
             return Query<T1, T2, T3, T4, TRet>(cb, sql, args).ToList();
         }
 
-        // Multi Query
         public IEnumerable<TRet> Query<T1, T2, TRet>(Func<T1, T2, TRet> cb, string sql, params object[] args)
         {
             return Query<TRet>(new Type[] {typeof (T1), typeof (T2)}, cb, sql, args);
@@ -936,7 +886,6 @@ namespace Helix.Infra.Peta
             return Query<TRet>(new Type[] {typeof (T1), typeof (T2), typeof (T3), typeof (T4)}, cb, sql, args);
         }
 
-        // Multi Fetch (SQL builder)
         public List<TRet> Fetch<T1, T2, TRet>(Func<T1, T2, TRet> cb, Sql sql)
         {
             return Query<T1, T2, TRet>(cb, sql.SQL, sql.Arguments).ToList();
@@ -952,7 +901,6 @@ namespace Helix.Infra.Peta
             return Query<T1, T2, T3, T4, TRet>(cb, sql.SQL, sql.Arguments).ToList();
         }
 
-        // Multi Query (SQL builder)
         public IEnumerable<TRet> Query<T1, T2, TRet>(Func<T1, T2, TRet> cb, Sql sql)
         {
             return Query<TRet>(new Type[] {typeof (T1), typeof (T2)}, cb, sql.SQL, sql.Arguments);
@@ -968,7 +916,6 @@ namespace Helix.Infra.Peta
             return Query<TRet>(new Type[] {typeof (T1), typeof (T2), typeof (T3), typeof (T4)}, cb, sql.SQL, sql.Arguments);
         }
 
-        // Multi Fetch (Simple)
         public List<T1> Fetch<T1, T2>(string sql, params object[] args)
         {
             return Query<T1, T2>(sql, args).ToList();
@@ -984,7 +931,6 @@ namespace Helix.Infra.Peta
             return Query<T1, T2, T3, T4>(sql, args).ToList();
         }
 
-        // Multi Query (Simple)
         public IEnumerable<T1> Query<T1, T2>(string sql, params object[] args)
         {
             return Query<T1>(new Type[] {typeof (T1), typeof (T2)}, null, sql, args);
@@ -1000,7 +946,6 @@ namespace Helix.Infra.Peta
             return Query<T1>(new Type[] {typeof (T1), typeof (T2), typeof (T3), typeof (T4)}, null, sql, args);
         }
 
-        // Multi Fetch (Simple) (SQL builder)
         public List<T1> Fetch<T1, T2>(Sql sql)
         {
             return Query<T1, T2>(sql.SQL, sql.Arguments).ToList();
@@ -1016,7 +961,6 @@ namespace Helix.Infra.Peta
             return Query<T1, T2, T3, T4>(sql.SQL, sql.Arguments).ToList();
         }
 
-        // Multi Query (Simple) (SQL builder)
         public IEnumerable<T1> Query<T1, T2>(Sql sql)
         {
             return Query<T1>(new Type[] {typeof (T1), typeof (T2)}, null, sql.SQL, sql.Arguments);
@@ -1032,20 +976,17 @@ namespace Helix.Infra.Peta
             return Query<T1>(new Type[] {typeof (T1), typeof (T2), typeof (T3), typeof (T4)}, null, sql.SQL, sql.Arguments);
         }
 
-        // Automagically guess the property relationships between various POCOs and create a delegate that will set them up
-        private object GetAutoMapper(Type[] types)
+        private static object GetAutoMapper(Type[] types)
         {
-            // Build a key
             var kb = new StringBuilder();
             foreach (var t in types)
             {
-                kb.Append(t.ToString());
+                kb.Append(t);
                 kb.Append(":");
             }
             var key = kb.ToString();
-
-            // Check cache
             RWLock.EnterReadLock();
+
             try
             {
                 object mapper;
@@ -1057,30 +998,28 @@ namespace Helix.Infra.Peta
                 RWLock.ExitReadLock();
             }
 
-            // Create it
             RWLock.EnterWriteLock();
             try
             {
-                // Try again
                 object mapper;
                 if (AutoMappers.TryGetValue(key, out mapper))
                     return mapper;
 
-                // Create a method
-                var m = new DynamicMethod("petapoco_automapper", types[0], types, true);
+                var m = new DynamicMethod("helix_peta_automapper", types[0], types, true);
                 var il = m.GetILGenerator();
 
-                for (int i = 1; i < types.Length; i++)
+                for (var i = 1; i < types.Length; i++)
                 {
-                    bool handled = false;
-                    for (int j = i - 1; j >= 0; j--)
+                    var handled = false;
+                    for (var j = i - 1; j >= 0; j--)
                     {
-                        // Find the property
                         var candidates = from p in types[j].GetProperties() where p.PropertyType == types[i] select p;
-                        if (candidates.Count() == 0)
+
+                        if (!candidates.Any())
                             continue;
+
                         if (candidates.Count() > 1)
-                            throw new InvalidOperationException(string.Format("Can't auto join {0} as {1} has more than one property of type {0}", types[i], types[j]));
+                            throw new InvalidOperationException(string.Format("Can not auto join `{0}` as `{1}` has more than one property of type `{0}`", types[i], types[j]));
 
                         // Generate code
                         il.Emit(OpCodes.Ldarg_S, j);
@@ -1090,13 +1029,12 @@ namespace Helix.Infra.Peta
                     }
 
                     if (!handled)
-                        throw new InvalidOperationException(string.Format("Can't auto join {0}", types[i]));
+                        throw new InvalidOperationException($"Can't auto join `{types[i]}`");
                 }
 
                 il.Emit(OpCodes.Ldarg_0);
                 il.Emit(OpCodes.Ret);
 
-                // Cache it
                 var del = m.CreateDelegate(Expression.GetFuncType(types.Concat(types.Take(1)).ToArray()));
                 AutoMappers.Add(key, del);
                 return del;
@@ -1107,24 +1045,19 @@ namespace Helix.Infra.Peta
             }
         }
 
-        // Find the split point in a result set for two different pocos and return the poco factory for the first
         private Delegate FindSplitPoint(Type typeThis, Type typeNext, string sql, IDataReader r, ref int pos)
         {
-            // Last?
             if (typeNext == null)
                 return PocoData.ForType(typeThis).GetFactory(sql, _sharedConnection.ConnectionString, ForceDateTimesToUtc, pos, r.FieldCount - pos, r);
 
-            // Get PocoData for the two types
-            PocoData pdThis = PocoData.ForType(typeThis);
-            PocoData pdNext = PocoData.ForType(typeNext);
+            var pdThis = PocoData.ForType(typeThis);
+            var pdNext = PocoData.ForType(typeNext);
 
-            // Find split point
-            int firstColumn = pos;
+            var firstColumn = pos;
             var usedColumns = new Dictionary<string, bool>();
             for (; pos < r.FieldCount; pos++)
             {
-                // Split if field name has already been used, or if the field doesn't exist in current poco but does in the next
-                string fieldName = r.GetName(pos);
+                var fieldName = r.GetName(pos);
                 if (usedColumns.ContainsKey(fieldName) || (!pdThis.Columns.ContainsKey(fieldName) && pdNext.Columns.ContainsKey(fieldName)))
                 {
                     return pdThis.GetFactory(sql, _sharedConnection.ConnectionString, ForceDateTimesToUtc, firstColumn, pos - firstColumn, r);
@@ -1132,10 +1065,9 @@ namespace Helix.Infra.Peta
                 usedColumns.Add(fieldName, true);
             }
 
-            throw new InvalidOperationException(string.Format("Couldn't find split point between {0} and {1}", typeThis, typeNext));
+            throw new InvalidOperationException($"Couldn't find split point between `{typeThis}` and `{typeNext}`");
         }
 
-        // Instance data used by the Multipoco factory delegate - essentially a list of the nested poco factories to call
         private class MultiPocoFactory
         {
             public List<Delegate> m_Delegates;
@@ -1146,70 +1078,58 @@ namespace Helix.Infra.Peta
             }
         }
 
-        // Create a multi-poco factory
         private Func<IDataReader, object, TRet> CreateMultiPocoFactory<TRet>(Type[] types, string sql, IDataReader r)
         {
-            var m = new DynamicMethod("petapoco_multipoco_factory", typeof (TRet), new Type[] {typeof (MultiPocoFactory), typeof (IDataReader), typeof (object)}, typeof (MultiPocoFactory));
+            var m = new DynamicMethod("helix_peta_multipoco_factory", typeof (TRet), new[] {typeof (MultiPocoFactory), typeof (IDataReader), typeof (object)}, typeof (MultiPocoFactory));
             var il = m.GetILGenerator();
 
-            // Load the callback
             il.Emit(OpCodes.Ldarg_2);
 
-            // Call each delegate
             var dels = new List<Delegate>();
             int pos = 0;
             for (int i = 0; i < types.Length; i++)
             {
-                // Add to list of delegates to call
                 var del = FindSplitPoint(types[i], i + 1 < types.Length ? types[i + 1] : null, sql, r, ref pos);
                 dels.Add(del);
 
-                // Get the delegate
-                il.Emit(OpCodes.Ldarg_0); // callback,this
-                il.Emit(OpCodes.Ldc_I4, i); // callback,this,Index
-                il.Emit(OpCodes.Callvirt, typeof (MultiPocoFactory).GetMethod("GetItem")); // callback,Delegate
-                il.Emit(OpCodes.Ldarg_1); // callback,delegate, datareader
+                il.Emit(OpCodes.Ldarg_0);
+                il.Emit(OpCodes.Ldc_I4, i);
+                il.Emit(OpCodes.Callvirt, typeof (MultiPocoFactory).GetMethod("GetItem")); 
+                il.Emit(OpCodes.Ldarg_1);
 
-                // Call Invoke
                 var tDelInvoke = del.GetType().GetMethod("Invoke");
-                il.Emit(OpCodes.Callvirt, tDelInvoke); // Poco left on stack
+                il.Emit(OpCodes.Callvirt, tDelInvoke);
             }
 
-            // By now we should have the callback and the N pocos all on the stack.  Call the callback and we're done
-            il.Emit(OpCodes.Callvirt, Expression.GetFuncType(types.Concat(new Type[] {typeof (TRet)}).ToArray()).GetMethod("Invoke"));
+            il.Emit(OpCodes.Callvirt, Expression.GetFuncType(types.Concat(new[] {typeof (TRet)}).ToArray()).GetMethod("Invoke"));
             il.Emit(OpCodes.Ret);
 
-            // Finish up
             return (Func<IDataReader, object, TRet>) m.CreateDelegate(typeof (Func<IDataReader, object, TRet>), new MultiPocoFactory() {m_Delegates = dels});
         }
 
-        // Various cached stuff
-        private static Dictionary<string, object> MultiPocoFactories = new Dictionary<string, object>();
-        private static Dictionary<string, object> AutoMappers = new Dictionary<string, object>();
-        private static System.Threading.ReaderWriterLockSlim RWLock = new System.Threading.ReaderWriterLockSlim();
 
-        // Get (or create) the multi-poco factory for a query
         private Func<IDataReader, object, TRet> GetMultiPocoFactory<TRet>(Type[] types, string sql, IDataReader r)
         {
-            // Build a key string  (this is crap, should address this at some point)
             var kb = new StringBuilder();
-            kb.Append(typeof (TRet).ToString());
+            kb.Append(typeof (TRet));
             kb.Append(":");
+
             foreach (var t in types)
             {
                 kb.Append(":");
-                kb.Append(t.ToString());
+                kb.Append(t);
             }
+
             kb.Append(":");
             kb.Append(_sharedConnection.ConnectionString);
             kb.Append(":");
             kb.Append(ForceDateTimesToUtc);
             kb.Append(":");
             kb.Append(sql);
-            string key = kb.ToString();
+            var key = kb.ToString();
 
-            // Check cache
             RWLock.EnterReadLock();
+
             try
             {
                 object oFactory;
@@ -1221,16 +1141,13 @@ namespace Helix.Infra.Peta
                 RWLock.ExitReadLock();
             }
 
-            // Cache it
             RWLock.EnterWriteLock();
             try
             {
-                // Check again
                 object oFactory;
                 if (MultiPocoFactories.TryGetValue(key, out oFactory))
                     return (Func<IDataReader, object, TRet>) oFactory;
 
-                // Create the factory
                 var Factory = CreateMultiPocoFactory<TRet>(types, sql, r);
 
                 MultiPocoFactories.Add(key, Factory);
@@ -1243,7 +1160,6 @@ namespace Helix.Infra.Peta
 
         }
 
-        // Actual implementation of the multi-poco query
         public IEnumerable<TRet> Query<TRet>(Type[] types, object cb, string sql, params object[] args)
         {
             OpenSharedConnection();
@@ -1265,7 +1181,7 @@ namespace Helix.Infra.Peta
                     var factory = GetMultiPocoFactory<TRet>(types, sql, r);
                     if (cb == null)
                         cb = GetAutoMapper(types.ToArray());
-                    bool bNeedTerminator = false;
+                    var bNeedTerminator = false;
                     using (r)
                     {
                         while (true)
@@ -1313,17 +1229,17 @@ namespace Helix.Infra.Peta
 
         public bool Exists<T>(object primaryKey)
         {
-            return FirstOrDefault<T>(string.Format("WHERE {0}=@0", EscapeSqlIdentifier(PocoData.ForType(typeof (T)).TableInfo.PrimaryKey)), primaryKey) != null;
+            return FirstOrDefault<T>($"WHERE {EscapeSqlIdentifier(PocoData.ForType(typeof (T)).TableInfo.PrimaryKey)}=@0", primaryKey) != null;
         }
 
         public T Single<T>(object primaryKey)
         {
-            return Single<T>(string.Format("WHERE {0}=@0", EscapeSqlIdentifier(PocoData.ForType(typeof (T)).TableInfo.PrimaryKey)), primaryKey);
+            return Single<T>($"WHERE {EscapeSqlIdentifier(PocoData.ForType(typeof (T)).TableInfo.PrimaryKey)}=@0", primaryKey);
         }
 
         public T SingleOrDefault<T>(object primaryKey)
         {
-            return SingleOrDefault<T>(string.Format("WHERE {0}=@0", EscapeSqlIdentifier(PocoData.ForType(typeof (T)).TableInfo.PrimaryKey)), primaryKey);
+            return SingleOrDefault<T>($"WHERE {EscapeSqlIdentifier(PocoData.ForType(typeof (T)).TableInfo.PrimaryKey)}=@0", primaryKey);
         }
 
         public T Single<T>(string sql, params object[] args)
@@ -1368,7 +1284,6 @@ namespace Helix.Infra.Peta
 
         public string EscapeTableName(string str)
         {
-            // Assume table names with "dot" are already escaped
             return str.IndexOf('.') >= 0 ? str : EscapeSqlIdentifier(str);
         }
 
@@ -1377,16 +1292,16 @@ namespace Helix.Infra.Peta
             switch (_dbType)
             {
                 case DBType.MySql:
-                    return string.Format("`{0}`", str);
+                    return $"`{str}`";
 
                 case DBType.PostgreSQL:
-                    return string.Format("\"{0}\"", str);
+                    return $"\"{str}\"";
 
                 case DBType.Oracle:
-                    return string.Format("\"{0}\"", str.ToUpperInvariant());
+                    return $"\"{str.ToUpperInvariant()}\"";
 
                 default:
-                    return string.Format("[{0}]", str);
+                    return $"[{str}]";
             }
         }
 
@@ -1395,14 +1310,11 @@ namespace Helix.Infra.Peta
             return Insert(tableName, primaryKeyName, true, poco);
         }
 
-        // Insert a poco into a table.  If the poco has a property with the same name 
-        // as the primary key the id of the new record is assigned to it.  Either way,
-        // the new id is returned.
+        // Insert a poco into a table.  If the poco has a property with the same name as the primary key the id of the new record is assigned to it.  Either way, the new id is returned.
         public object Insert(string tableName, string primaryKeyName, bool autoIncrement, object poco)
         {
             try
             {
-                //var pocoDictionary = poco.ToDictionary(); 
                 OpenSharedConnection();
                 try
                 {
@@ -1436,9 +1348,6 @@ namespace Helix.Infra.Peta
                             if (i.Key.Equals("rowversion", StringComparison.InvariantCultureIgnoreCase)) // we don't touch rowver columns
                                 continue;
 
-                            //if (i.Key.ToLower().Equals("lastupdate")) // we update last update column 
-                            //    i.Value.SetValue(poco, DateTime.Now);
-
                             // dont touch db unless the POCO contains a new (non-null) value.
                             if (i.Value.GetValue(poco) == null || !i.Value.GetValue(poco).HasValue())
                                 continue;
@@ -1449,22 +1358,17 @@ namespace Helix.Infra.Peta
                                 if (_dbType == DBType.Oracle && !string.IsNullOrEmpty(pd.TableInfo.SequenceName))
                                 {
                                     names.Add(i.Key);
-                                    values.Add(string.Format("{0}.nextval", pd.TableInfo.SequenceName));
+                                    values.Add($"{pd.TableInfo.SequenceName}.nextval");
                                 }
                                 continue;
                             }
 
-
                             names.Add(EscapeSqlIdentifier(i.Key));
-                            values.Add(string.Format("{0}{1}", _paramPrefix, index++));
+                            values.Add($"{_paramPrefix}{index++}");
                             AddParam(cmd, i.Value.GetValue(poco), _paramPrefix);
                         }
 
-                        cmd.CommandText = string.Format("INSERT INTO {0} ({1}) VALUES ({2})",
-                            EscapeTableName(tableName),
-                            string.Join(",", names.ToArray()),
-                            string.Join(",", values.ToArray())
-                            );
+                        cmd.CommandText = $"INSERT INTO {EscapeTableName(tableName)} ({string.Join(",", names.ToArray())}) VALUES ({string.Join(",", values.ToArray())})";
 
                         if (!autoIncrement)
                         {
@@ -1474,8 +1378,8 @@ namespace Helix.Infra.Peta
                             return true;
                         }
 
-
                         object id;
+
                         switch (_dbType)
                         {
                             case DBType.SqlServerCE:
@@ -1493,7 +1397,7 @@ namespace Helix.Infra.Peta
                             case DBType.PostgreSQL:
                                 if (primaryKeyName != null)
                                 {
-                                    cmd.CommandText += string.Format("returning {0} as NewID", EscapeSqlIdentifier(primaryKeyName));
+                                    cmd.CommandText += $"returning {EscapeSqlIdentifier(primaryKeyName)} as NewID";
                                     DoPreExecute(cmd);
                                     id = cmd.ExecuteScalar();
                                 }
@@ -1505,10 +1409,11 @@ namespace Helix.Infra.Peta
                                 }
                                 OnExecutedCommand(cmd);
                                 break;
+
                             case DBType.Oracle:
                                 if (primaryKeyName != null)
                                 {
-                                    cmd.CommandText += string.Format(" returning {0} into :newid", EscapeSqlIdentifier(primaryKeyName));
+                                    cmd.CommandText += $" returning {EscapeSqlIdentifier(primaryKeyName)} into :newid";
                                     var param = cmd.CreateParameter();
                                     param.ParameterName = ":newid";
                                     param.Value = DBNull.Value;
@@ -1527,6 +1432,7 @@ namespace Helix.Infra.Peta
                                 }
                                 OnExecutedCommand(cmd);
                                 break;
+
                             case DBType.SQLite:
                                 if (primaryKeyName != null)
                                 {
@@ -1542,6 +1448,7 @@ namespace Helix.Infra.Peta
                                 }
                                 OnExecutedCommand(cmd);
                                 break;
+
                             default:
                                 cmd.CommandText += ";\nSELECT @@IDENTITY AS NewID;";
                                 DoPreExecute(cmd);
@@ -1551,7 +1458,6 @@ namespace Helix.Infra.Peta
                         }
 
 
-                        // Assign the ID back to the primary key property
                         if (primaryKeyName != null)
                         {
                             PocoColumn pc;
@@ -1576,11 +1482,10 @@ namespace Helix.Infra.Peta
             }
         }
 
-        // Insert an annotated poco object
         public object Insert(object poco)
         {
             var pd = PocoData.ForType(poco.GetType());
-            return Insert(pd.TableInfo.TableName, pd.TableInfo.PrimaryKey, true, poco); // default to true on autoIncrement to get ID value by default.
+            return Insert(pd.TableInfo.TableName, pd.TableInfo.PrimaryKey, true, poco);
         }
 
         public int Update(string tableName, string primaryKeyName, object poco, object primaryKeyValue)
@@ -1589,12 +1494,10 @@ namespace Helix.Infra.Peta
         }
 
 
-        // Update a record with values from a poco.  primary key value can be either supplied or read from the poco
         public int Update(string tableName, string primaryKeyName, object poco, object primaryKeyValue, IEnumerable<string> columns)
         {
             try
             {
-                //var pocoDictionary = poco.ToDictionary();
                 OpenSharedConnection();
                 try
                 {
@@ -1607,7 +1510,6 @@ namespace Helix.Infra.Peta
                         {
                             foreach (var i in pd.Columns)
                             {
-                                // Don't update the primary key, but grab the value if we don't have it
                                 if (string.Compare(i.Key, primaryKeyName, true) == 0)
                                 {
                                     if (primaryKeyValue == null)
@@ -1621,7 +1523,6 @@ namespace Helix.Infra.Peta
                                         sb.Append(", ");
                                     sb.AppendFormat("{0} = {1}{2}", EscapeSqlIdentifier(i.Key), _paramPrefix, index++);
 
-                                    // Store the parameter in the command
                                     AddParam(cmd, i.Value.GetValue(poco), _paramPrefix);
                                     continue;
                                 }
@@ -1629,7 +1530,6 @@ namespace Helix.Infra.Peta
                                 if (i.Key.Equals("uid", StringComparison.InvariantCultureIgnoreCase)) // we dont touch "UID" rowid 
                                     continue;
 
-                                //dont change the original created column
                                 if (i.Key.Equals("created", StringComparison.InvariantCultureIgnoreCase))
                                     continue;
 
@@ -1642,20 +1542,18 @@ namespace Helix.Infra.Peta
                                 if (i.Key.Equals("rowversion", StringComparison.InvariantCultureIgnoreCase)) // we don't touch rowver columns
                                     continue;
 
-                                // Dont update result only columns
                                 if (i.Value.ResultColumn || i.Value.VirtualColumn)
                                     continue;
 
-                                // Dont touch SQL unless the POCO contains a new (non-null) value or the updateIfNull attribute has been set.
                                 if ((!i.Value.GetValue(poco).HasValue() && !i.Value.UpdateIfNullColumn))
                                     continue;
 
-                                // Build the sql
                                 if (index > 0)
+                                {
                                     sb.Append(", ");
-                                sb.AppendFormat("{0} = {1}{2}", EscapeSqlIdentifier(i.Key), _paramPrefix, index++);
+                                }
 
-                                // Store the parameter in the command
+                                sb.AppendFormat("{0} = {1}{2}", EscapeSqlIdentifier(i.Key), _paramPrefix, index++);
                                 AddParam(cmd, i.Value.GetValue(poco), _paramPrefix);
                             }
                         }
@@ -1665,16 +1563,15 @@ namespace Helix.Infra.Peta
                             {
                                 var pc = pd.Columns[colname];
 
-                                // Build the sql
                                 if (index > 0)
+                                {
                                     sb.Append(", ");
-                                sb.AppendFormat("{0} = {1}{2}", EscapeSqlIdentifier(colname), _paramPrefix, index++);
+                                }
 
-                                // Store the parameter in the command
+                                sb.AppendFormat("{0} = {1}{2}", EscapeSqlIdentifier(colname), _paramPrefix, index++);
                                 AddParam(cmd, pc.GetValue(poco), _paramPrefix);
                             }
 
-                            // Grab primary key value
                             if (primaryKeyValue == null)
                             {
                                 var pc = pd.Columns[primaryKeyName];
@@ -1683,13 +1580,11 @@ namespace Helix.Infra.Peta
 
                         }
 
-                        cmd.CommandText = string.Format("UPDATE {0} SET {1} WHERE {2} = {3}{4}",
-                            EscapeTableName(tableName), sb.ToString(), EscapeSqlIdentifier(primaryKeyName), _paramPrefix, index++);
+                        cmd.CommandText = $"UPDATE {EscapeTableName(tableName)} SET {sb} WHERE {EscapeSqlIdentifier(primaryKeyName)} = {_paramPrefix}{index++}";
                         AddParam(cmd, primaryKeyValue, _paramPrefix);
 
                         DoPreExecute(cmd);
 
-                        // Do it
                         var retv = cmd.ExecuteNonQuery();
                         OnExecutedCommand(cmd);
                         return retv;
@@ -1741,13 +1636,13 @@ namespace Helix.Infra.Peta
         public int Update<T>(string sql, params object[] args)
         {
             var pd = PocoData.ForType(typeof (T));
-            return Execute(string.Format("UPDATE {0} {1}", EscapeTableName(pd.TableInfo.TableName), sql), args);
+            return Execute($"UPDATE {EscapeTableName(pd.TableInfo.TableName)} {sql}", args);
         }
 
         public int Update<T>(Sql sql)
         {
             var pd = PocoData.ForType(typeof (T));
-            return Execute(new Sql(string.Format("UPDATE {0}", EscapeTableName(pd.TableInfo.TableName))).Append(sql));
+            return Execute(new Sql($"UPDATE {EscapeTableName(pd.TableInfo.TableName)}").Append(sql));
         }
 
         public int Delete(string tableName, string primaryKeyName, object poco)
@@ -1757,7 +1652,6 @@ namespace Helix.Infra.Peta
 
         public int Delete(string tableName, string primaryKeyName, object poco, object primaryKeyValue)
         {
-            // If primary key value not specified, pick it up from the object
             if (primaryKeyValue == null)
             {
                 var pd = PocoData.ForObject(poco, primaryKeyName);
@@ -1768,8 +1662,7 @@ namespace Helix.Infra.Peta
                 }
             }
 
-            // Do it
-            var sql = string.Format("DELETE FROM {0} WHERE {1}=@0", EscapeTableName(tableName), EscapeSqlIdentifier(primaryKeyName));
+            var sql = $"DELETE FROM {EscapeTableName(tableName)} WHERE {EscapeSqlIdentifier(primaryKeyName)}=@0";
             return Execute(sql, primaryKeyValue);
         }
 
@@ -1801,13 +1694,13 @@ namespace Helix.Infra.Peta
         public int Delete<T>(string sql, params object[] args)
         {
             var pd = PocoData.ForType(typeof (T));
-            return Execute(string.Format("DELETE FROM {0} {1}", EscapeTableName(pd.TableInfo.TableName), sql), args);
+            return Execute($"DELETE FROM {EscapeTableName(pd.TableInfo.TableName)} {sql}", args);
         }
 
         public int Delete<T>(Sql sql)
         {
             var pd = PocoData.ForType(typeof (T));
-            return Execute(new Sql(string.Format("DELETE FROM {0}", EscapeTableName(pd.TableInfo.TableName))).Append(sql));
+            return Execute(new Sql($"DELETE FROM {EscapeTableName(pd.TableInfo.TableName)}").Append(sql));
         }
 
         // Check if a poco represents a new record
@@ -1820,8 +1713,9 @@ namespace Helix.Infra.Peta
             {
                 pk = pc.GetValue(poco);
             }
+
 #if !PETAPOCO_NO_DYNAMIC
-            else if (poco.GetType() == typeof (System.Dynamic.ExpandoObject))
+            else if (poco is ExpandoObject)
             {
                 return true;
             }
@@ -1830,7 +1724,7 @@ namespace Helix.Infra.Peta
             {
                 var pi = poco.GetType().GetProperty(primaryKeyName);
                 if (pi == null)
-                    throw new ArgumentException(string.Format("The object doesn't have a property matching the primary key column name '{0}'", primaryKeyName));
+                    throw new ArgumentException($"The object doesn't have a property matching the primary key column name '{primaryKeyName}'");
                 pk = pi.GetValue(poco, null);
             }
 
@@ -1841,34 +1735,34 @@ namespace Helix.Infra.Peta
 
             if (type.IsValueType)
             {
-                // Common primary key types
                 if (type == typeof (long))
                     return (long) pk == 0;
-                else if (type == typeof (ulong))
+
+                if (type == typeof (ulong))
                     return (ulong) pk == 0;
-                else if (type == typeof (int))
+
+                if (type == typeof (int))
                     return (int) pk == 0;
-                else if (type == typeof (uint))
+
+                if (type == typeof (uint))
                     return (uint) pk == 0;
 
-                // Create a default instance and compare
                 return pk == Activator.CreateInstance(pk.GetType());
             }
-            else
-            {
-                return pk == null;
-            }
+
+            return pk == null;
         }
 
         public bool IsNew(object poco)
         {
             var pd = PocoData.ForType(poco.GetType());
+
             if (!pd.TableInfo.AutoIncrement)
                 throw new InvalidOperationException("IsNew() and Save() are only supported on tables with auto-increment/identity primary key columns");
+
             return IsNew(pd.TableInfo.PrimaryKey, poco);
         }
 
-        // Insert new record or Update existing record
         public void Save(string tableName, string primaryKeyName, object poco)
         {
             if (IsNew(primaryKeyName, poco))
@@ -1887,12 +1781,11 @@ namespace Helix.Infra.Peta
             Save(pd.TableInfo.TableName, pd.TableInfo.PrimaryKey, poco);
         }
 
-        public int CommandTimeout { get; set; }
-        public int OneTimeCommandTimeout { get; set; }
+        public int CommandTimeout { get; set; } = 60;
+        public int OneTimeCommandTimeout { get; set; } = 60;
 
         private void DoPreExecute(IDbCommand cmd)
         {
-            // Setup command timeout
             if (OneTimeCommandTimeout != 0)
             {
                 cmd.CommandTimeout = OneTimeCommandTimeout;
@@ -1903,28 +1796,15 @@ namespace Helix.Infra.Peta
                 cmd.CommandTimeout = CommandTimeout;
             }
 
-            // Call hook
             OnExecutingCommand(cmd);
 
-            // Save it
             _lastSql = cmd.CommandText;
             _lastArgs = (from IDataParameter parameter in cmd.Parameters select parameter.Value).ToArray();
         }
 
-        public string LastSQL
-        {
-            get { return _lastSql; }
-        }
-
-        public object[] LastArgs
-        {
-            get { return _lastArgs; }
-        }
-
-        public string LastCommand
-        {
-            get { return FormatCommand(_lastSql, _lastArgs); }
-        }
+        public string LastSQL => _lastSql;
+        public object[] LastArgs => _lastArgs;
+        public string LastCommand => FormatCommand(_lastSql, _lastArgs);
 
         public string FormatCommand(IDbCommand cmd)
         {
@@ -1935,20 +1815,21 @@ namespace Helix.Infra.Peta
         {
             var sb = new StringBuilder();
             if (sql == null)
-                return "";
+                return string.Empty;
             sb.Append(sql);
+
             if (args != null && args.Length > 0)
             {
                 sb.Append("\n");
-                for (int i = 0; i < args.Length; i++)
+                for (var i = 0; i < args.Length; i++)
                 {
                     sb.AppendFormat("\t -> {0}{1} [{2}] = \"{3}\"\n", _paramPrefix, i, args[i].GetType().Name, args[i]);
                 }
                 sb.Remove(sb.Length - 1, 1);
             }
+
             return sb.ToString();
         }
-
 
         public static IMapper Mapper { get; set; }
 
@@ -2001,20 +1882,25 @@ namespace Helix.Infra.Peta
             public static PocoData ForObject(object o, string primaryKeyName)
             {
                 var t = o.GetType();
+
 #if !PETAPOCO_NO_DYNAMIC
-                if (t == typeof (System.Dynamic.ExpandoObject))
+                if (t == typeof (ExpandoObject))
                 {
-                    var pd = new PocoData();
-                    pd.TableInfo = new TableInfo();
-                    pd.Columns = new Dictionary<string, PocoColumn>(StringComparer.OrdinalIgnoreCase);
-                    pd.Columns.Add(primaryKeyName, new ExpandoColumn() {ColumnName = primaryKeyName});
+                    var pd = new PocoData
+                    {
+                        TableInfo = new TableInfo(),
+                        Columns = new Dictionary<string, PocoColumn>(StringComparer.OrdinalIgnoreCase) {{primaryKeyName, new ExpandoColumn() {ColumnName = primaryKeyName}}}
+                    };
+
                     pd.TableInfo.PrimaryKey = primaryKeyName;
                     pd.TableInfo.AutoIncrement = true;
+
                     foreach (var col in (o as IDictionary<string, object>).Keys)
                     {
                         if (col != primaryKeyName)
                             pd.Columns.Add(col, new ExpandoColumn() {ColumnName = col});
                     }
+
                     return pd;
                 }
                 else
@@ -2027,10 +1913,9 @@ namespace Helix.Infra.Peta
             public static PocoData ForType(Type t)
             {
 #if !PETAPOCO_NO_DYNAMIC
-                if (t == typeof (System.Dynamic.ExpandoObject))
+                if (t == typeof (ExpandoObject))
                     throw new InvalidOperationException("Can't use dynamic types with this method");
 #endif
-                // Check cache
                 RWLock.EnterReadLock();
                 PocoData pd;
                 try
@@ -2044,17 +1929,13 @@ namespace Helix.Infra.Peta
                 }
 
 
-                // Cache it
                 RWLock.EnterWriteLock();
                 try
                 {
-                    // Check again
                     if (m_PocoDatas.TryGetValue(t, out pd))
                         return pd;
 
-                    // Create it
                     pd = new PocoData(t);
-
                     m_PocoDatas.Add(t, pd);
                 }
                 finally
@@ -2074,26 +1955,21 @@ namespace Helix.Infra.Peta
                 type = t;
                 TableInfo = new TableInfo();
 
-                // Get the table name
                 var a = t.GetCustomAttributes(typeof (TableNameAttribute), true);
                 TableInfo.TableName = a.Length == 0 ? t.Name : (a[0] as TableNameAttribute).Value;
-
-                // Get the primary key
                 a = t.GetCustomAttributes(typeof (PrimaryKeyAttribute), true);
+
                 TableInfo.PrimaryKey = a.Length == 0 ? "ID" : (a[0] as PrimaryKeyAttribute).Value;
                 TableInfo.SequenceName = a.Length == 0 ? null : (a[0] as PrimaryKeyAttribute).sequenceName;
-                TableInfo.AutoIncrement = a.Length == 0 ? false : (a[0] as PrimaryKeyAttribute).autoIncrement;
+                TableInfo.AutoIncrement = a.Length != 0 && (a[0] as PrimaryKeyAttribute).autoIncrement;
 
-                // Call column mapper
-                if (Database.Mapper != null)
-                    Database.Mapper.GetTableInfo(t, TableInfo);
+                Mapper?.GetTableInfo(t, TableInfo);
 
-                // Work out bound properties
-                bool ExplicitColumns = t.GetCustomAttributes(typeof (ExplicitColumnsAttribute), true).Length > 0;
+                var ExplicitColumns = t.GetCustomAttributes(typeof (ExplicitColumnsAttribute), true).Length > 0;
                 Columns = new Dictionary<string, PocoColumn>(StringComparer.OrdinalIgnoreCase);
+
                 foreach (var pi in t.GetProperties())
                 {
-                    // Work out if properties is to be included
                     var ColAttrs = pi.GetCustomAttributes(typeof (ColumnAttribute), true);
                     if (ExplicitColumns)
                     {
@@ -2102,36 +1978,33 @@ namespace Helix.Infra.Peta
                     }
                     else
                     {
-                        if (pi.GetCustomAttributes(typeof (IgnoreAttribute), true).Length != 0 /*|| pi.GetCustomAttributes(typeof(VirtualAttribute), true).Length != 0*/)
+                        if (pi.GetCustomAttributes(typeof (IgnoreAttribute), true).Length != 0)
                             continue;
                     }
 
-                    var pc = new PocoColumn();
-                    pc.PropertyInfo = pi;
+                    var pc = new PocoColumn
+                    {
+                        PropertyInfo = pi
+                    };
 
-                    // Work out the DB column name and apply POCO processing rules for results, virtual, and UpdateIfNull
                     if (ColAttrs.Length > 0)
                     {
                         var colattr = (ColumnAttribute) ColAttrs[0];
                         pc.ColumnName = colattr.Name;
-
                         pc.ResultColumn = ((colattr as VirtualColumnAttribute) != null);
                         pc.UpdateIfNullColumn = ((colattr as UpdateIfNullAttribute) != null);
-                        //pc.VirtualColumn = ((colattr as VirtualAttribute) != null);
                     }
 
                     if (pc.ColumnName == null)
                     {
                         pc.ColumnName = pi.Name;
-                        if (Database.Mapper != null && !Database.Mapper.MapPropertyToColumn(pi, ref pc.ColumnName, ref pc.ResultColumn))
+                        if (Mapper != null && !Mapper.MapPropertyToColumn(pi, ref pc.ColumnName, ref pc.ResultColumn))
                             continue;
                     }
 
-                    // Store it
                     Columns.Add(pc.ColumnName, pc);
                 }
 
-                // Build column list for automatic select
                 QueryColumns = (from c in Columns where (!c.Value.ResultColumn && !c.Value.VirtualColumn) select c.Key).ToArray();
 
             }
@@ -2142,15 +2015,12 @@ namespace Helix.Infra.Peta
                 return tc >= TypeCode.SByte && tc <= TypeCode.UInt64;
             }
 
-            // Create factory function that can convert a IDataReader record into a POCO
             public Delegate GetFactory(string sql, string connString, bool ForceDateTimesToUtc, int firstColumn, int countColumns, IDataReader r)
             {
-                // Check cache
-                var key = string.Format("{0}:{1}:{2}:{3}:{4}", sql, connString, ForceDateTimesToUtc, firstColumn, countColumns);
+                var key = $"{sql}:{connString}:{ForceDateTimesToUtc}:{firstColumn}:{countColumns}";
                 RWLock.EnterReadLock();
                 try
                 {
-                    // Have we already created it?
                     Delegate factory;
                     if (PocoFactories.TryGetValue(key, out factory))
                         return factory;
@@ -2160,48 +2030,43 @@ namespace Helix.Infra.Peta
                     RWLock.ExitReadLock();
                 }
 
-                // Take the writer lock
                 RWLock.EnterWriteLock();
 
                 try
                 {
 
-                    // Check again, just in case
                     Delegate factory;
+
                     if (PocoFactories.TryGetValue(key, out factory))
                         return factory;
 
-                    // Create the method
-                    var m = new DynamicMethod("petapoco_factory_" + PocoFactories.Count.ToString(), type, new Type[] {typeof (IDataReader)}, true);
+                    var m = new DynamicMethod("helix_peta_factory_" + PocoFactories.Count, type, new[] {typeof (IDataReader)}, true);
                     var il = m.GetILGenerator();
 
 #if !PETAPOCO_NO_DYNAMIC
                     if (type == typeof (object))
                     {
                         // var poco=new T()
-                        il.Emit(OpCodes.Newobj, typeof (System.Dynamic.ExpandoObject).GetConstructor(Type.EmptyTypes)); // obj
+                        il.Emit(OpCodes.Newobj, typeof (ExpandoObject).GetConstructor(Type.EmptyTypes));
+                        var fnAdd = typeof (IDictionary<string, object>).GetMethod("Add");
 
-                        MethodInfo fnAdd = typeof (IDictionary<string, object>).GetMethod("Add");
-
-                        // Enumerate all fields generating a set assignment for the column
-                        for (int i = firstColumn; i < firstColumn + countColumns; i++)
+                        for (var i = firstColumn; i < firstColumn + countColumns; i++)
                         {
                             var srcType = r.GetFieldType(i);
 
-                            il.Emit(OpCodes.Dup); // obj, obj
-                            il.Emit(OpCodes.Ldstr, r.GetName(i)); // obj, obj, fieldname
+                            il.Emit(OpCodes.Dup);
+                            il.Emit(OpCodes.Ldstr, r.GetName(i));
 
-                            // Get the converter
                             Func<object, object> converter = null;
-                            if (Database.Mapper != null)
-                                converter = Database.Mapper.GetFromDbConverter(null, srcType);
-                            if (ForceDateTimesToUtc && converter == null && srcType == typeof (DateTime))
-                                converter = delegate(object src) { return new DateTime(((DateTime) src).Ticks, DateTimeKind.Utc); };
 
-                            // Setup stack for call to converter
+                            if (Mapper != null)
+                                converter = Mapper.GetFromDbConverter(null, srcType);
+
+                            if (ForceDateTimesToUtc && converter == null && srcType == typeof (DateTime))
+                                converter = src => new DateTime(((DateTime) src).Ticks, DateTimeKind.Utc);
+
                             AddConverterToStack(il, converter);
 
-                            // r[i]
                             il.Emit(OpCodes.Ldarg_0); // obj, obj, fieldname, converter?,    rdr
                             il.Emit(OpCodes.Ldc_I4, i); // obj, obj, fieldname, converter?,  rdr,i
                             il.Emit(OpCodes.Callvirt, fnGetValue); // obj, obj, fieldname, converter?,  value
@@ -2212,9 +2077,11 @@ namespace Helix.Infra.Peta
                             var lblNotNull = il.DefineLabel();
                             il.Emit(OpCodes.Brfalse_S, lblNotNull); // obj, obj, fieldname, converter?,  value
                             il.Emit(OpCodes.Pop); // obj, obj, fieldname, converter?
+
                             if (converter != null)
                                 il.Emit(OpCodes.Pop); // obj, obj, fieldname, 
                             il.Emit(OpCodes.Ldnull); // obj, obj, fieldname, null
+
                             if (converter != null)
                             {
                                 var lblReady = il.DefineLabel();
@@ -2235,11 +2102,9 @@ namespace Helix.Infra.Peta
 #endif
                         if (type.IsValueType || type == typeof (string) || type == typeof (byte[]))
                         {
-                            // Do we need to install a converter?
                             var srcType = r.GetFieldType(0);
                             var converter = GetConverter(ForceDateTimesToUtc, null, srcType, type);
 
-                            // "if (!rdr.IsDBNull(i))"
                             il.Emit(OpCodes.Ldarg_0); // rdr
                             il.Emit(OpCodes.Ldc_I4_0); // rdr,0
                             il.Emit(OpCodes.Callvirt, fnIsDBNull); // bool
@@ -2251,14 +2116,12 @@ namespace Helix.Infra.Peta
 
                             il.MarkLabel(lblCont);
 
-                            // Setup stack for call to converter
                             AddConverterToStack(il, converter);
 
                             il.Emit(OpCodes.Ldarg_0); // rdr
                             il.Emit(OpCodes.Ldc_I4_0); // rdr,0
                             il.Emit(OpCodes.Callvirt, fnGetValue); // value
 
-                            // Call the converter
                             if (converter != null)
                                 il.Emit(OpCodes.Callvirt, fnInvoke);
 
@@ -2310,7 +2173,7 @@ namespace Helix.Infra.Peta
                                         // Convert to Nullable
                                         if (Nullable.GetUnderlyingType(dstType) != null)
                                         {
-                                            il.Emit(OpCodes.Newobj, dstType.GetConstructor(new Type[] {Nullable.GetUnderlyingType(dstType)}));
+                                            il.Emit(OpCodes.Newobj, dstType.GetConstructor(new[] {Nullable.GetUnderlyingType(dstType)}));
                                         }
 
                                         il.Emit(OpCodes.Callvirt, pc.PropertyInfo.GetSetMethod(true)); // poco
@@ -2352,7 +2215,6 @@ namespace Helix.Infra.Peta
 
                     il.Emit(OpCodes.Ret);
 
-                    // Cache it, return it
                     var del = m.CreateDelegate(Expression.GetFuncType(typeof (IDataReader), type));
                     PocoFactories.Add(key, del);
                     return del;
@@ -2365,33 +2227,31 @@ namespace Helix.Infra.Peta
 
             private static void AddConverterToStack(ILGenerator il, Func<object, object> converter)
             {
-                if (converter != null)
-                {
-                    // Add the converter
-                    int converterIndex = m_Converters.Count;
-                    m_Converters.Add(converter);
+                if (converter == null)
+                    return;
 
-                    // Generate IL to push the converter onto the stack
-                    il.Emit(OpCodes.Ldsfld, fldConverters);
-                    il.Emit(OpCodes.Ldc_I4, converterIndex);
-                    il.Emit(OpCodes.Callvirt, fnListGetItem); // Converter
-                }
+                var converterIndex = m_Converters.Count;
+                m_Converters.Add(converter);
+
+                il.Emit(OpCodes.Ldsfld, fldConverters);
+                il.Emit(OpCodes.Ldc_I4, converterIndex);
+                il.Emit(OpCodes.Callvirt, fnListGetItem);
             }
 
             private static Func<object, object> GetConverter(bool forceDateTimesToUtc, PocoColumn pc, Type srcType, Type dstType)
             {
                 Func<object, object> converter = null;
 
-                // Get converter from the mapper
-                if (Database.Mapper != null)
+                if (Mapper != null)
                 {
                     if (pc != null)
                     {
-                        converter = Database.Mapper.GetFromDbConverter(pc.PropertyInfo, srcType);
+                        converter = Mapper.GetFromDbConverter(pc.PropertyInfo, srcType);
                     }
                     else
                     {
-                        var m2 = Database.Mapper as IMapper2;
+                        var m2 = Mapper as IMapper2;
+
                         if (m2 != null)
                         {
                             converter = m2.GetFromDbConverter(dstType, srcType);
@@ -2399,13 +2259,11 @@ namespace Helix.Infra.Peta
                     }
                 }
 
-                // Standard DateTime->Utc mapper
                 if (forceDateTimesToUtc && converter == null && srcType == typeof (DateTime) && (dstType == typeof (DateTime) || dstType == typeof (DateTime?)))
                 {
                     converter = src => new DateTime(((DateTime) src).Ticks, DateTimeKind.Utc);
                 }
 
-                // Forced type conversion including integral types -> enum
                 if (converter == null)
                 {
                     try
@@ -2417,7 +2275,7 @@ namespace Helix.Infra.Peta
                                 converter = src => Convert.ChangeType(src, typeof (int), null);
                             }
                         }
-                        else if (Nullable.GetUnderlyingType(dstType) != null) // try to handle Nullable Types here.
+                        else if (Nullable.GetUnderlyingType(dstType) != null)
                         {
                             var ty = Nullable.GetUnderlyingType(dstType);
                             converter = src => Convert.ChangeType(src, ty, null);
@@ -2449,13 +2307,13 @@ namespace Helix.Infra.Peta
             }
 
 
-            private static Dictionary<Type, PocoData> m_PocoDatas = new Dictionary<Type, PocoData>();
-            private static List<Func<object, object>> m_Converters = new List<Func<object, object>>();
-            private static MethodInfo fnGetValue = typeof (IDataRecord).GetMethod("GetValue", new Type[] {typeof (int)});
-            private static MethodInfo fnIsDBNull = typeof (IDataRecord).GetMethod("IsDBNull");
-            private static FieldInfo fldConverters = typeof (PocoData).GetField("m_Converters", BindingFlags.Static | BindingFlags.GetField | BindingFlags.NonPublic);
-            private static MethodInfo fnListGetItem = typeof (List<Func<object, object>>).GetProperty("Item").GetGetMethod();
-            private static MethodInfo fnInvoke = typeof (Func<object, object>).GetMethod("Invoke");
+            private static readonly Dictionary<Type, PocoData> m_PocoDatas = new Dictionary<Type, PocoData>();
+            private static readonly List<Func<object, object>> m_Converters = new List<Func<object, object>>();
+            private static readonly MethodInfo fnGetValue = typeof (IDataRecord).GetMethod("GetValue", new Type[] {typeof (int)});
+            private static readonly MethodInfo fnIsDBNull = typeof (IDataRecord).GetMethod("IsDBNull");
+            private static readonly FieldInfo fldConverters = typeof (PocoData).GetField("m_Converters", BindingFlags.Static | BindingFlags.GetField | BindingFlags.NonPublic);
+            private static readonly MethodInfo fnListGetItem = typeof (List<Func<object, object>>).GetProperty("Item").GetGetMethod();
+            private static readonly MethodInfo fnInvoke = typeof (Func<object, object>).GetMethod("Invoke");
             public Type type;
             public string[] QueryColumns { get; private set; }
             public TableInfo TableInfo { get; private set; }
@@ -2465,8 +2323,8 @@ namespace Helix.Infra.Peta
 
 
         // Member variables
-        private string _connectionString;
-        private string _providerName;
+        private readonly string _connectionString;
+        private readonly string _providerName;
         private DbProviderFactory _factory;
         private IDbConnection _sharedConnection;
         private IDbTransaction _transaction;
@@ -2478,7 +2336,6 @@ namespace Helix.Infra.Peta
         private string _paramPrefix = "@";
     }
 
-    // Transaction object helps maintain transaction depth counts
     public class Transaction : IDisposable
     {
         public Database Db
@@ -2520,14 +2377,12 @@ namespace Helix.Infra.Peta
 
         public void Dispose()
         {
-            if (_db != null)
-                _db.AbortTransaction();
+            _db?.AbortTransaction();
         }
 
         private Database _db;
     }
 
-    // Simple helper class for building SQL statements
     public class Sql
     {
         public Sql()
@@ -2540,26 +2395,21 @@ namespace Helix.Infra.Peta
             _args = args;
         }
 
-        public static Sql Builder
-        {
-            get { return new Sql(); }
-        }
+        public static Sql Builder => new Sql();
 
         public string FromTable { get; set; }
 
-        private string _sql;
-        private object[] _args;
+        private readonly string _sql;
+        private readonly object[] _args;
         private Sql _rhs;
         private string _sqlFinal;
         private object[] _argsFinal;
 
         private void Build()
         {
-            // already built?
             if (_sqlFinal != null)
                 return;
 
-            // Build it
             var sb = new StringBuilder();
             var args = new List<object>();
             Build(sb, args, null);
@@ -2607,9 +2457,8 @@ namespace Helix.Infra.Peta
 
         private void Build(StringBuilder sb, List<object> args, Sql lhs)
         {
-            if (!String.IsNullOrEmpty(_sql))
+            if (!string.IsNullOrEmpty(_sql))
             {
-                // Add SQL to the string
                 if (sb.Length > 0)
                 {
                     sb.Append("\n");
@@ -2625,9 +2474,7 @@ namespace Helix.Infra.Peta
                 sb.Append(sql);
             }
 
-            // Now do rhs
-            if (_rhs != null)
-                _rhs.Build(sb, args, this);
+            _rhs?.Build(sb, args, this);
         }
 
         public Sql Where(string sql, params object[] args)
@@ -2637,12 +2484,12 @@ namespace Helix.Infra.Peta
 
         public Sql OrderBy(params object[] columns)
         {
-            return Append(new Sql("ORDER BY " + String.Join(", ", (from x in columns select x.ToString()).ToArray())));
+            return Append(new Sql("ORDER BY " + string.Join(", ", (from x in columns select x.ToString()).ToArray())));
         }
 
         public Sql Select(params object[] columns)
         {
-            return Append(new Sql("SELECT " + String.Join(", ", (from x in columns select x.ToString()).ToArray())));
+            return Append(new Sql("SELECT " + string.Join(", ", (from x in columns select x.ToString()).ToArray())));
         }
 
         public Sql From(string tableName, bool withNoLock = true)
@@ -2689,8 +2536,5 @@ namespace Helix.Infra.Peta
                 return _sql.Append("ON " + onClause, args);
             }
         }
-
-
     }
-
 }

@@ -59,13 +59,9 @@ namespace Helix.Infra
                 var tableColumn = table.Columns[columnNames[columnIndex]];
 
                 if (tableColumn != null)
-                {
                     tableColumn.SetOrdinal(columnIndex);
-                }
                 else
-                {
                     table.Columns.Add(new DataColumn(columnNames[columnIndex]));
-                }
             }
         }
 
@@ -157,8 +153,6 @@ namespace Helix.Infra
 
         public static DataTable Pivot(this DataTable dt, string pivotColumn, string pivotValue, string[] includedColumns = null)
         {
-            // find primary key columns 
-            //(i.e. everything but pivot column and pivot value)
             var pc = new DataColumn(pivotColumn);
             var pv = new DataColumn(pivotValue);
 
@@ -167,18 +161,13 @@ namespace Helix.Infra
             temp.Columns.Remove(pv.ColumnName);
             var pkColumnNames = temp.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToArray();
 
-            // prep results table
             var result = temp.DefaultView.ToTable(true, pkColumnNames).Copy();
             result.PrimaryKey = result.Columns.Cast<DataColumn>().ToArray();
             dt.AsEnumerable().Select(r => r[pc.ColumnName].ToString()).Distinct().ToList().ForEach(c => result.Columns.Add(c, pc.DataType));
 
-            // load it
             foreach (DataRow row in dt.Rows)
             {
-                // find row to update
                 DataRow aggRow = result.Rows.Find(pkColumnNames.Select(c => row[c]).ToArray());
-                // the aggregate used here is LATEST    
-                // adjust the next line if you want (SUM, MAX, etc...)
                 aggRow[row[pc.ColumnName].ToString()] = row[pv.ColumnName];
             }
 
@@ -189,24 +178,18 @@ namespace Helix.Infra
         {
             DataTable outputTable = new DataTable();
 
-            // Add columns by looping rows
-
-            // Header row's first column is same as in inputTable
             outputTable.Columns.Add(inputTable.Columns[0].ColumnName.ToString());
 
-            // Header row's second column onwards, 'inputTable's first column taken
             foreach (DataRow inRow in inputTable.Rows)
             {
                 string newColName = inRow[0].ToString();
                 outputTable.Columns.Add(newColName);
             }
 
-            // Add rows by looping columns        
             for (int rCount = 1; rCount <= inputTable.Columns.Count - 1; rCount++)
             {
                 DataRow newRow = outputTable.NewRow();
 
-                // First column is inputTable's Header row's second column
                 newRow[0] = inputTable.Columns[rCount].ColumnName.ToString();
                 for (int cCount = 0; cCount <= inputTable.Rows.Count - 1; cCount++)
                 {
@@ -221,25 +204,18 @@ namespace Helix.Infra
 
         public static DataTable Pivot(this DataTable dt, DataColumn pivotColumn, DataColumn pivotValue)
         {
-            // find primary key columns 
-            //(i.e. everything but pivot column and pivot value)
             var temp = dt.Copy();
             temp.Columns.Remove(pivotColumn.ColumnName);
             temp.Columns.Remove(pivotValue.ColumnName);
             var pkColumnNames = temp.Columns.Cast<DataColumn>().Select(c => c.ColumnName).ToArray();
 
-            // prep results table
             var result = temp.DefaultView.ToTable(true, pkColumnNames).Copy();
             result.PrimaryKey = result.Columns.Cast<DataColumn>().ToArray();
             dt.AsEnumerable().Select(r => r[pivotColumn.ColumnName].ToString()).Distinct().ToList().ForEach(c => result.Columns.Add(c, pivotColumn.DataType));
 
-            // load it
             foreach (DataRow row in dt.Rows)
             {
-                // find row to update
                 DataRow aggRow = result.Rows.Find(pkColumnNames.Select(c => row[c]).ToArray());
-                // the aggregate used here is LATEST    
-                // adjust the next line if you want (SUM, MAX, etc...)
                 aggRow[row[pivotColumn.ColumnName].ToString()] = row[pivotValue.ColumnName];
             }
 

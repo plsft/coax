@@ -2495,12 +2495,12 @@ namespace Helix.Infra.Peta
 
         public Sql From(params object[] tables)
         {
-            return Append(new Sql("FROM " + String.Join(", ", (from x in tables select x.ToString()).ToArray())));
+            return Append(new Sql("FROM " + string.Join(", ", (from x in tables select x.ToString()).ToArray())));
         }
 
         public Sql GroupBy(params object[] columns)
         {
-            return Append(new Sql("GROUP BY " + String.Join(", ", (from x in columns select x.ToString()).ToArray())));
+            return Append(new Sql("GROUP BY " + string.Join(", ", (from x in columns select x.ToString()).ToArray())));
         }
 
         private SqlJoinClause Join(string JoinType, string table)

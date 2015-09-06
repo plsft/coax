@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Web;
 using Helix.Infra.Peta;
 
 namespace Helix.Utility
@@ -45,6 +46,21 @@ namespace Helix.Utility
             lock (o)
             {
                 return _db.Execute(query, args);
+            }
+        }
+
+        public IEnumerable<T> Query<T>(string q, params object[] args)
+        {
+            lock (o)
+            {
+                try
+                {
+                    return _db.Query<T>(new Sql(q, args));
+                }
+                catch
+                {
+                    return new List<T>();
+                }
             }
         }
 
